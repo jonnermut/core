@@ -1,0 +1,6 @@
+
+
+module LibreOfficeKitPrivate {
+    header "private.h"
+    export *
+}
