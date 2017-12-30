@@ -18,3 +18,6 @@ int BridgeLOkit_open(const char *path);
 int BridgeLOkit_ClientCommand(const char *input);
 int BridgeLOkit_Hipernate(void);
 int BridgeLOkit_LeaveHipernate(void);
+
+typedef struct _LibreOfficeKit LibreOfficeKit;
+LibreOfficeKit* BridgeLOkit_getLOK();

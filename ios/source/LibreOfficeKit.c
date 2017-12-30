@@ -120,3 +120,9 @@ int BridgeLOkit_LeaveHipernate()
     return 0;
 }
 
+__attribute__((visibility("default")))
+LibreOfficeKit* BridgeLOkit_getLOK()
+{
+    return kit;
+}
+
