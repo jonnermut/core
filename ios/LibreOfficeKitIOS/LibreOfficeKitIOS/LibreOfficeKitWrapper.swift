@@ -23,7 +23,9 @@ open class LibreOffice
 
     public init() throws
     {
-        BridgeLOkit_Init(Bundle.main.bundlePath)
+        let b = Bundle.init(for: LibreOffice.self)
+        let path = b.bundlePath // not Bundle.main.bundlePath
+        BridgeLOkit_Init(path)
         let pLok = BridgeLOkit_getLOK()
         if let lokClass = pLok?.pointee.pClass?.pointee
         {
