@@ -22,6 +22,17 @@
 		FC6B74821FF7121A00D4A08C /* LibreOfficeKitGtk.h in Headers */ = {isa = PBXBuildFile; fileRef = FC6B747C1FF7121A00D4A08C /* LibreOfficeKitGtk.h */; };
 		FC6B74831FF7121A00D4A08C /* LibreOfficeKitInit.h in Headers */ = {isa = PBXBuildFile; fileRef = FC6B747D1FF7121A00D4A08C /* LibreOfficeKitInit.h */; };
 		FC6B74841FF7121A00D4A08C /* LibreOfficeKitTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = FC6B747E1FF7121A00D4A08C /* LibreOfficeKitTypes.h */; };
+		FCFCAC2F1FF85BFD002E5865 /* fundamentalrc in Resources */ = {isa = PBXBuildFile; fileRef = FCFCA6271FF85BFA002E5865 /* fundamentalrc */; };
+		FCFCAC301FF85BFD002E5865 /* icudt60l.dat in Resources */ = {isa = PBXBuildFile; fileRef = FCFCA6281FF85BFA002E5865 /* icudt60l.dat */; };
+		FCFCAC311FF85BFD002E5865 /* offapi.rdb in Resources */ = {isa = PBXBuildFile; fileRef = FCFCA6291FF85BFA002E5865 /* offapi.rdb */; };
+		FCFCAC321FF85BFD002E5865 /* oovbaapi.rdb in Resources */ = {isa = PBXBuildFile; fileRef = FCFCA62A1FF85BFA002E5865 /* oovbaapi.rdb */; };
+		FCFCAC351FF85BFD002E5865 /* rc in Resources */ = {isa = PBXBuildFile; fileRef = FCFCA62E1FF85BFA002E5865 /* rc */; };
+		FCFCAC371FF85BFD002E5865 /* services.rdb in Resources */ = {isa = PBXBuildFile; fileRef = FCFCA6311FF85BFA002E5865 /* services.rdb */; };
+		FCFCB1D61FF85C00002E5865 /* udkapi.rdb in Resources */ = {isa = PBXBuildFile; fileRef = FCFCAC2D1FF85BFD002E5865 /* udkapi.rdb */; };
+		FCFCB1D71FF85C00002E5865 /* unorc in Resources */ = {isa = PBXBuildFile; fileRef = FCFCAC2E1FF85BFD002E5865 /* unorc */; };
+		FCFCB1DB1FF85C24002E5865 /* program in Resources */ = {isa = PBXBuildFile; fileRef = FCFCB1D81FF85C24002E5865 /* program */; };
+		FCFCB1DC1FF85C24002E5865 /* services in Resources */ = {isa = PBXBuildFile; fileRef = FCFCB1D91FF85C24002E5865 /* services */; };
+		FCFCB1DD1FF85C24002E5865 /* share in Resources */ = {isa = PBXBuildFile; fileRef = FCFCB1DA1FF85C24002E5865 /* share */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +65,17 @@
 		FC6B747C1FF7121A00D4A08C /* LibreOfficeKitGtk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LibreOfficeKitGtk.h; sourceTree = "<group>"; };
 		FC6B747D1FF7121A00D4A08C /* LibreOfficeKitInit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LibreOfficeKitInit.h; sourceTree = "<group>"; };
 		FC6B747E1FF7121A00D4A08C /* LibreOfficeKitTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LibreOfficeKitTypes.h; sourceTree = "<group>"; };
+		FCFCA6271FF85BFA002E5865 /* fundamentalrc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fundamentalrc; sourceTree = "<group>"; };
+		FCFCA6281FF85BFA002E5865 /* icudt60l.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = icudt60l.dat; sourceTree = "<group>"; };
+		FCFCA6291FF85BFA002E5865 /* offapi.rdb */ = {isa = PBXFileReference; lastKnownFileType = file; path = offapi.rdb; sourceTree = "<group>"; };
+		FCFCA62A1FF85BFA002E5865 /* oovbaapi.rdb */ = {isa = PBXFileReference; lastKnownFileType = file; path = oovbaapi.rdb; sourceTree = "<group>"; };
+		FCFCA62E1FF85BFA002E5865 /* rc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rc; sourceTree = "<group>"; };
+		FCFCA6311FF85BFA002E5865 /* services.rdb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = services.rdb; sourceTree = "<group>"; };
+		FCFCAC2D1FF85BFD002E5865 /* udkapi.rdb */ = {isa = PBXFileReference; lastKnownFileType = file; path = udkapi.rdb; sourceTree = "<group>"; };
+		FCFCAC2E1FF85BFD002E5865 /* unorc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = unorc; sourceTree = "<group>"; };
+		FCFCB1D81FF85C24002E5865 /* program */ = {isa = PBXFileReference; lastKnownFileType = folder; path = program; sourceTree = "<group>"; };
+		FCFCB1D91FF85C24002E5865 /* services */ = {isa = PBXFileReference; lastKnownFileType = folder; path = services; sourceTree = "<group>"; };
+		FCFCB1DA1FF85C24002E5865 /* share */ = {isa = PBXFileReference; lastKnownFileType = folder; path = share; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,12 +104,13 @@
 		FC356B3E1FF702FC007A19A2 = {
 			isa = PBXGroup;
 			children = (
-				FC6CD05D1FF71A6400F772A7 /* ProjectModule */,
+				FCFCA6261FF85BFA002E5865 /* resources */,
+				FC356B621FF7038C007A19A2 /* Frameworks */,
 				FC6B74781FF7121A00D4A08C /* LibreOfficeKit */,
 				FC356B4A1FF702FC007A19A2 /* LibreOfficeKitIOS */,
 				FC356B551FF702FC007A19A2 /* LibreOfficeKitIOSTests */,
 				FC356B491FF702FC007A19A2 /* Products */,
-				FC356B621FF7038C007A19A2 /* Frameworks */,
+				FC6CD05D1FF71A6400F772A7 /* ProjectModule */,
 			);
 			sourceTree = "<group>";
 		};
@@ -151,6 +174,25 @@
 				FC356B6F1FF705B7007A19A2 /* module.modulemap */,
 			);
 			path = ProjectModule;
+			sourceTree = "<group>";
+		};
+		FCFCA6261FF85BFA002E5865 /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				FCFCB1D81FF85C24002E5865 /* program */,
+				FCFCB1D91FF85C24002E5865 /* services */,
+				FCFCB1DA1FF85C24002E5865 /* share */,
+				FCFCA6271FF85BFA002E5865 /* fundamentalrc */,
+				FCFCA6281FF85BFA002E5865 /* icudt60l.dat */,
+				FCFCA6291FF85BFA002E5865 /* offapi.rdb */,
+				FCFCA62A1FF85BFA002E5865 /* oovbaapi.rdb */,
+				FCFCA62E1FF85BFA002E5865 /* rc */,
+				FCFCA6311FF85BFA002E5865 /* services.rdb */,
+				FCFCAC2D1FF85BFD002E5865 /* udkapi.rdb */,
+				FCFCAC2E1FF85BFD002E5865 /* unorc */,
+			);
+			name = resources;
+			path = ../generated/resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -254,6 +296,17 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FCFCB1DD1FF85C24002E5865 /* share in Resources */,
+				FCFCB1DB1FF85C24002E5865 /* program in Resources */,
+				FCFCAC301FF85BFD002E5865 /* icudt60l.dat in Resources */,
+				FCFCAC311FF85BFD002E5865 /* offapi.rdb in Resources */,
+				FCFCB1D71FF85C00002E5865 /* unorc in Resources */,
+				FCFCB1DC1FF85C24002E5865 /* services in Resources */,
+				FCFCAC2F1FF85BFD002E5865 /* fundamentalrc in Resources */,
+				FCFCAC371FF85BFD002E5865 /* services.rdb in Resources */,
+				FCFCAC351FF85BFD002E5865 /* rc in Resources */,
+				FCFCAC321FF85BFD002E5865 /* oovbaapi.rdb in Resources */,
+				FCFCB1D61FF85C00002E5865 /* udkapi.rdb in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
