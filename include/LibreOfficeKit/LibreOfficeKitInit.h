@@ -236,7 +236,7 @@ static void *lok_dlopen( const char *install_path, char ** _imp_lib )
 #else
     (void)install_path;
     imp_lib = strdup("the app executable");
-    dlhandle = RTLD_MAIN_ONLY;
+    dlhandle = RTLD_SELF; // not RTLD_MAIN_ONLY;
 #endif
     *_imp_lib = imp_lib;
     return dlhandle;
