@@ -60,7 +60,7 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     // Moving to hipernate
     public func Hipernate() -> Void
     {
-        BridgeLOkit_Hipernate()
+        //BridgeLOkit_Hipernate() // FIXME
     }
 
 
@@ -68,7 +68,7 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     // Moving back to foreground
     public func LeaveHipernate() -> Void
     {
-        BridgeLOkit_LeaveHipernate()
+        //BridgeLOkit_LeaveHipernate() // FIXME
     }
 
 
@@ -318,8 +318,10 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     // Real open and presentation of document
     public func doOpen(_ docURL : URL)
     {
+        /* FIXME
         BridgeLOkit_open(docURL.absoluteString);
         BridgeLOkit_Sizing(4, 4, 256, 256);
+ */
     }
 }
 
