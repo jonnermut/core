@@ -49,6 +49,18 @@
 #include <premac.h>
 #import <Foundation/Foundation.h>
 #include <postmac.h>
+
+namespace  {
+    NSString* getAppDataDir()
+    {
+
+        
+        // TODO - it would be nicer if we could get the bundle path passed down to us rather than have the hardcoded bundle id here
+        NSString* bundlePath = [NSBundle bundleWithIdentifier:@"com.jani.Editors.LibreOfficeKitIOS"].bundlePath;
+        return bundlePath;
+    }
+}
+
 #endif
 
 using osl::DirectoryItem;
@@ -241,7 +253,10 @@ static OUString & getIniFileName_Impl()
         // directory. Apps are self-contained anyway, there is no
         // possibility to have several "applications" in the same
         // installation location with different inifiles.
-        const char *inifile = [[@"vnd.sun.star.pathname:" stringByAppendingString: [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent: @"rc"]] UTF8String];
+        
+        NSString* bundlePath = getAppDataDir();
+        const char *inifile = [[@"vnd.sun.star.pathname:" stringByAppendingString: bundlePath] stringByAppendingPathComponent: @"rc"].UTF8String;
+        
         fileName = rtl::OUString(inifile, strlen(inifile), RTL_TEXTENCODING_UTF8);
         resolvePathnameUrl(&fileName);
 #elif defined ANDROID
@@ -489,7 +504,7 @@ bool Bootstrap_Impl::getValue(
 #ifdef IOS
     if (key == "APP_DATA_DIR")
     {
-        const char *app_data_dir = [[[[NSBundle mainBundle] bundlePath] stringByAddingPercentEncodingWithAllowedCharacters: [NSCharacterSet URLPathAllowedCharacterSet]] UTF8String];
+        const char *app_data_dir = getAppDataDir().UTF8String;
         rtl_uString_assign(
             value, rtl::OUString(app_data_dir, strlen(app_data_dir), RTL_TEXTENCODING_UTF8).pData);
         return true;
