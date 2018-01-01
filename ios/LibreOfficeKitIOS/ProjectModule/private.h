@@ -13,5 +13,6 @@
 
 #define LOK_USE_UNSTABLE_API 1
 #import <LibreOfficeKit/LibreOfficeKit.h>
+#import <LibreOfficeKit/LibreOfficeKitEnums.h>
 
 #endif /* umbrella_h */

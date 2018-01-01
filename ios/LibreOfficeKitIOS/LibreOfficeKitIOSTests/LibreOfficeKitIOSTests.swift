@@ -21,16 +21,100 @@ class LibreOfficeKitIOSTests: XCTestCase {
         super.tearDown()
     }
 
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
 
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    
+    func testLoadingSimpleDoc() {
+        
+        guard let lo = try? LibreOffice() else
+        {
+            XCTFail("Could not start LibreOffice")
+            return
         }
+        
+        let b = Bundle.init(for: LibreOfficeKitIOSTests.self)
+        guard let url = b.url(forResource: "test-page-format", withExtension: "docx") else
+        {
+            XCTFail("Failed to get url to test doc")
+            return
+        }
+        
+        var loCallbackCount = 0
+        lo.registerCallback()
+        {
+            typ, payload in
+            print(typ)
+            print(payload)
+            loCallbackCount += 1
+        }
+        
+        guard let doc = try? lo.documentLoad(url: url.absoluteString) else
+        {
+            XCTFail("Could not load document")
+            return
+        }
+        
+        var docCallbackCount = 0
+        doc.registerCallback()
+        {
+            typ, payload in
+            print(typ)
+            print(payload)
+            docCallbackCount += 1
+        }
+        
+        //let typ: LibreOfficeDocumentType = doc.getDocumentType()
+        //XCTAssertTrue(typ == LibreOfficeDocumentType.LOK_DOCTYPE_TEXT)
+        
+        doc.initializeForRendering()
+        let rects = doc.getPartRectanges()
+        print(rects) // 284, 284, 12240, 15840; 284, 16408, 12240, 15840
+        let tileMode = doc.getTileMode()
+        print(tileMode) // 1
+        let canvasWidth = 256, canvasHeight = 256
+        let bufferSize =  canvasWidth * canvasHeight * 4
+        
+        
+        let tilePosX: Int32 = 284
+        let tilePosY: Int32 = 284
+        let tileWidth: Int32 = 4096
+        let tileHeight: Int32 = 4096
+        
+        /*
+        var buffer = Data(count: bufferSize)
+        buffer.withUnsafeMutableBytes()
+        {
+            (bufferPointer: UnsafeMutablePointer<UInt8>) in
+            doc.paintTile(pBuffer:bufferPointer,
+                          canvasWidth: Int32(canvasWidth),
+                          canvasHeight: Int32(canvasHeight),
+                          tilePosX: tilePosX,
+                          tilePosY: tilePosY,
+                          tileWidth: tileWidth,
+                          tileHeight: tileHeight)
+            return
+        }
+        */
+        
+        /*
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: canvasWidth, height: canvasHeight), false, 1.0)
+        
+        let ctx = UIGraphicsGetCurrentContext()
+        print(ctx)
+        let ptr = unsafeBitCast(ctx, to: UnsafeMutablePointer<UInt8>.self)
+        print(ptr)
+        doc.paintTile(pBuffer:ptr,
+                      canvasWidth: Int32(canvasWidth),
+                      canvasHeight: Int32(canvasHeight),
+                      tilePosX: tilePosX,
+                      tilePosY: tilePosY,
+                      tileWidth: tileWidth,
+                      tileHeight: tileHeight)
+        
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        */
     }
 
 }
+
+
