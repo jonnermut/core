@@ -70,36 +70,19 @@ class LibreOfficeKitIOSTests: XCTestCase {
         print(rects) // 284, 284, 12240, 15840; 284, 16408, 12240, 15840
         let tileMode = doc.getTileMode()
         print(tileMode) // 1
-        let canvasWidth = 256, canvasHeight = 256
-        let bufferSize =  canvasWidth * canvasHeight * 4
-        
+        let canvasWidth = 1024, canvasHeight = 1024
+
         
         let tilePosX: Int32 = 284
         let tilePosY: Int32 = 284
-        let tileWidth: Int32 = 4096
-        let tileHeight: Int32 = 4096
+        let tileWidth: Int32 = 12240
+        let tileHeight: Int32 = 12240
         
-        /*
-        var buffer = Data(count: bufferSize)
-        buffer.withUnsafeMutableBytes()
-        {
-            (bufferPointer: UnsafeMutablePointer<UInt8>) in
-            doc.paintTile(pBuffer:bufferPointer,
-                          canvasWidth: Int32(canvasWidth),
-                          canvasHeight: Int32(canvasHeight),
-                          tilePosX: tilePosX,
-                          tilePosY: tilePosY,
-                          tileWidth: tileWidth,
-                          tileHeight: tileHeight)
-            return
-        }
-        */
         
-        /*
         UIGraphicsBeginImageContextWithOptions(CGSize(width: canvasWidth, height: canvasHeight), false, 1.0)
         
         let ctx = UIGraphicsGetCurrentContext()
-        print(ctx)
+        print(ctx!)
         let ptr = unsafeBitCast(ctx, to: UnsafeMutablePointer<UInt8>.self)
         print(ptr)
         doc.paintTile(pBuffer:ptr,
@@ -112,9 +95,20 @@ class LibreOfficeKitIOSTests: XCTestCase {
         
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        */
+        if let i = image, let data = UIImagePNGRepresentation(i)
+        {
+            let filename = getDocumentsDirectory().appendingPathComponent("tile1.png")
+            try? data.write(to: filename)
+            print("Wrote tile to: \(filename)")
+        }
     }
 
+}
+
+func getDocumentsDirectory() -> URL
+{
+    let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+    return paths[0]
 }
 
 
