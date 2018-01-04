@@ -230,8 +230,6 @@ class DocumentTiledView: UIView
         
         let canvasSize = tileSize; //CGSize(width:512, height:512) // FIXME - this needs to be calculated
         
-        //document.paintTileToCurrentContext(canvasSize: canvasSize, tileRect: pageRect)
-        
         // we have to do the call synchronously, as the tile has to be painted now, on the current thread
         // TODO - cache the image, and check the cache before we do the sync call
         let image = document.sync {
@@ -269,44 +267,6 @@ class DocumentTiledView: UIView
             img.draw(in: box)
             UIGraphicsPopContext()
         }
-        
-        /*
-        var imageToRender = cachedRenders.find()
-        {
-            cr in
-            return cr.x == box.origin.x && cr.y == box.origin.y && cr.scale == ctm.a
-            }?.image
-        
-        if imageToRender == nil
-        {
-            imageToRender = self.pdfPage?.renderCGImageSync(params)
-            if let i = imageToRender
-            {
-                pruneCache()
-                cachedRenders.append(CachedRender(x: box.origin.x, y: box.origin.y, scale: ctm.a, image: i))
-            }
-        }
-        
-        if let cgImage = imageToRender
-        {
-            // Start with identity matrix
-            let m1: CGAffineTransform = CGAffineTransform.identity
-            
-            // Move it to the right location
-            let m2 = m1.translatedBy(x: box.origin.x, y: box.origin.y + bitmapSize.height / ctm.a)
-            
-            // Scale it and flip in y axis
-            let m3 = m2.scaledBy(x: 1 / ctm.a, y: -1 / ctm.a)
-            
-            
-            
-            // Apply it to the graphics context
-            context.concatenate(m3)
-            
-            // Finally, draw the image
-            context.draw(cgImage, in: CGRect(x: 0, y: 0, width: bitmapSize.width, height: bitmapSize.height))
-        }
- */
         
         context.restoreGState()
         
