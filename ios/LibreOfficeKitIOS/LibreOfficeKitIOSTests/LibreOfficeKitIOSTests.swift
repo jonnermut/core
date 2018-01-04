@@ -70,32 +70,16 @@ class LibreOfficeKitIOSTests: XCTestCase {
         print(rects) // 284, 284, 12240, 15840; 284, 16408, 12240, 15840
         let tileMode = doc.getTileMode()
         print(tileMode) // 1
-        let canvasWidth = 1024, canvasHeight = 1024
-
+        let canvasSize = CGSize(width: 1024,height: 1024)
+        let tile = CGRect(x: 284, y: 284, width: 12240, height: 12240)
+       
         
-        let tilePosX: Int32 = 284
-        let tilePosY: Int32 = 284
-        let tileWidth: Int32 = 12240
-        let tileHeight: Int32 = 12240
-        
-        
-        UIGraphicsBeginImageContextWithOptions(CGSize(width: canvasWidth, height: canvasHeight), false, 1.0)
-        
-        let ctx = UIGraphicsGetCurrentContext()
-        print(ctx!)
-        let ptr = unsafeBitCast(ctx, to: UnsafeMutablePointer<UInt8>.self)
-        print(ptr)
-        doc.paintTile(pBuffer:ptr,
-                      canvasWidth: Int32(canvasWidth),
-                      canvasHeight: Int32(canvasHeight),
-                      tilePosX: tilePosX,
-                      tilePosY: tilePosY,
-                      tileWidth: tileWidth,
-                      tileHeight: tileHeight)
-        
-        let image = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        if let i = image, let data = UIImagePNGRepresentation(i)
+        guard let image = doc.paintTileToImage(canvasSize: canvasSize, tileRect: tile) else
+        {
+            XCTFail("No image")
+            return
+        }
+        if let data = UIImagePNGRepresentation(image)
         {
             let filename = getDocumentsDirectory().appendingPathComponent("tile1.png")
             try? data.write(to: filename)
@@ -111,4 +95,8 @@ func getDocumentsDirectory() -> URL
     return paths[0]
 }
 
+public extension Document
+{
+
+}
 

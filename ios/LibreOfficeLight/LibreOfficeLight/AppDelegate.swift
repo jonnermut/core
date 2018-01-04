@@ -17,8 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate
 {
     var window: UIWindow?
 
-    // singleton LibreOffice instance
-    var libreOffice: LibreOffice! = nil // initialised in didFinishLaunchingWithOptions
+
 
 
     // sent when clicking on a OO document in another app
@@ -48,7 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate
         defaults.synchronize()
 
         // start LibreOfficeKit
-        libreOffice = try! LibreOffice() // will blow up the app if it throws, but fair enough
+        let _ = LOKitThread.instance
 
         return true
     }
@@ -115,8 +114,4 @@ func getAppDelegate() -> AppDelegate
     return UIApplication.shared.delegate as! AppDelegate
 }
 
-public func getLibreOffice() -> LibreOffice
-{
-    return getAppDelegate().libreOffice
-}
 

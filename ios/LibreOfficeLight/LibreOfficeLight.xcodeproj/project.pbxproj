@@ -19,6 +19,9 @@
 		39EF4E2F1FA500C9001914AC /* PropertiesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EF4E2E1FA500C9001914AC /* PropertiesController.swift */; };
 		FCC243B11FF7429B0016EBC4 /* LibreOfficeKitIOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCC243AC1FF73A680016EBC4 /* LibreOfficeKitIOS.framework */; };
 		FCC243B21FF7429B0016EBC4 /* LibreOfficeKitIOS.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FCC243AC1FF73A680016EBC4 /* LibreOfficeKitIOS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FCC59F5B1FFD72D700E44F32 /* DocumentTiledView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC59F5A1FFD72D600E44F32 /* DocumentTiledView.swift */; };
+		FCC59F5E1FFD790500E44F32 /* example.odt in Resources */ = {isa = PBXBuildFile; fileRef = FCC59F5D1FFD790500E44F32 /* example.odt */; };
+		FCC59F601FFD99EB00E44F32 /* LOKitThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC59F5F1FFD99EB00E44F32 /* LOKitThread.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -59,6 +62,9 @@
 		39EF4E2E1FA500C9001914AC /* PropertiesController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertiesController.swift; sourceTree = "<group>"; };
 		FCC243AC1FF73A680016EBC4 /* LibreOfficeKitIOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; name = LibreOfficeKitIOS.framework; path = "../Debug-iphonesimulator/LibreOfficeKitIOS.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCC243AD1FF741FC0016EBC4 /* LibreOfficeKitIOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = LibreOfficeKitIOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FCC59F5A1FFD72D600E44F32 /* DocumentTiledView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentTiledView.swift; sourceTree = "<group>"; };
+		FCC59F5D1FFD790500E44F32 /* example.odt */ = {isa = PBXFileReference; lastKnownFileType = file; name = example.odt; path = "../../../android/default-document/example.odt"; sourceTree = "<group>"; };
+		FCC59F5F1FFD99EB00E44F32 /* LOKitThread.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LOKitThread.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +107,7 @@
 		397E08F11E597BD8001374E0 = {
 			isa = PBXGroup;
 			children = (
+				FCC59F5C1FFD78F100E44F32 /* Examples */,
 				FCC243AD1FF741FC0016EBC4 /* LibreOfficeKitIOS.framework */,
 				3911D89F1E5993600050D6BC /* Support files */,
 				397E08FC1E597BD8001374E0 /* LibreOfficeLight */,
@@ -131,9 +138,19 @@
 				399648461E5B87DC00E73E83 /* ViewProperties.swift */,
 				397E09011E597BD8001374E0 /* Main.storyboard */,
 				397868D81E59A3EA007F9248 /* LaunchScreen.xib */,
+				FCC59F5A1FFD72D600E44F32 /* DocumentTiledView.swift */,
+				FCC59F5F1FFD99EB00E44F32 /* LOKitThread.swift */,
 			);
 			path = LibreOfficeLight;
 			sourceTree = SOURCE_ROOT;
+		};
+		FCC59F5C1FFD78F100E44F32 /* Examples */ = {
+			isa = PBXGroup;
+			children = (
+				FCC59F5D1FFD790500E44F32 /* example.odt */,
+			);
+			path = Examples;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
@@ -209,6 +226,7 @@
 			files = (
 				397E09081E597BD8001374E0 /* Assets.xcassets in Resources */,
 				397868D61E59A3EA007F9248 /* LaunchScreen.xib in Resources */,
+				FCC59F5E1FFD790500E44F32 /* example.odt in Resources */,
 				396F92F71E7AE62400A28C82 /* Settings.bundle in Resources */,
 				397E09031E597BD8001374E0 /* Main.storyboard in Resources */,
 			);
@@ -227,6 +245,8 @@
 				3992D85A1E5B762A00BEA987 /* DocumentController.swift in Sources */,
 				397E08FE1E597BD8001374E0 /* AppDelegate.swift in Sources */,
 				39EF4E2F1FA500C9001914AC /* PropertiesController.swift in Sources */,
+				FCC59F5B1FFD72D700E44F32 /* DocumentTiledView.swift in Sources */,
+				FCC59F601FFD99EB00E44F32 /* LOKitThread.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -156,6 +156,7 @@ open class Document
         tileWidth: Int32,
         tileHeight: Int32)
     {
+        print("paintTile canvasWidth=\(canvasWidth) canvasHeight=\(canvasHeight) tilePosX=\(tilePosX) tilePosY=\(tilePosY) tileWidth=\(tileWidth) tileHeight=\(tileHeight) ")
         return docClass.paintTile(pDoc, pBuffer, canvasWidth, canvasHeight,
                                 tilePosX, tilePosY, tileWidth, tileHeight);
     }
@@ -203,6 +204,7 @@ open class Document
     /// Get the document sizes in TWIPs.
     public func getDocumentSize() -> (Int, Int)
     {
+        print(Thread.isMainThread)
         // long* pWidth, long* pHeight
         var pWidth: Int = 0
         var pHeight: Int = 0
@@ -549,6 +551,14 @@ open class Document
     {
         docClass.setViewLanguage(pDoc, id, language);
     }
+
+}
+
+/**
+ * iOS friendly extensions of Document 
+ */
+public extension Document
+{
 
 }
 

@@ -15,8 +15,9 @@ import LibreOfficeKitIOS
 // It is a delegate class to receive Menu events as well as file handling events
 class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewControllerDelegate
 {
-    var document: Document? = nil
+    var document: DocumentHolder? = nil
     
+    var documentView: DocumentTiledView? = nil
     
     // *** Handling of DocumentController
     // this is normal functions every controller must implement
@@ -41,7 +42,13 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
         }
     }
 
-
+    override func viewDidAppear(_ animated: Bool)
+    {
+        if let exampleDoc = Bundle.main.url(forResource: "example", withExtension: "odt")
+        {
+            self.doOpen(exampleDoc)
+        }
+    }
 
     // called when there is a memory constraint
     override func didReceiveMemoryWarning()
@@ -321,44 +328,27 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     // Real open and presentation of document
     public func doOpen(_ docURL : URL)
     {
-        let lo = getLibreOffice()
-        do
+        LOKitThread.instance.documentLoad(url: docURL.absoluteString)
         {
-            let doc = try lo.documentLoad(url: docURL.absoluteString)
-            print("Opened document: \(docURL)")
-            self.document = doc
-            doc.initializeForRendering()
-            
-            
-            // POC code to render a random tile. It doesnt work... No idea why yet
-            let canvasWidth = 256, canvasHeight = 256
-            let bufferSize =  canvasWidth * canvasHeight * 4
-            let tilePosX: Int32 = 284
-            let tilePosY: Int32 = 284
-            let tileWidth: Int32 = 4096
-            let tileHeight: Int32 = 4096
-            UIGraphicsBeginImageContextWithOptions(CGSize(width: canvasWidth, height: canvasHeight), false, 1.0)
-            
-            let ctx = UIGraphicsGetCurrentContext()
-            print(ctx)
-            let ptr = unsafeBitCast(ctx, to: UnsafeMutablePointer<UInt8>.self)
-            print(ptr)
-            doc.paintTile(pBuffer:ptr,
-                          canvasWidth: Int32(canvasWidth),
-                          canvasHeight: Int32(canvasHeight),
-                          tilePosX: tilePosX,
-                          tilePosY: tilePosY,
-                          tileWidth: tileWidth,
-                          tileHeight: tileHeight)
-            
-            let image = UIGraphicsGetImageFromCurrentImageContext()
-            UIGraphicsEndImageContext()
-            
-        }
-        catch
-        {
-            // TODO - alert user
-            print("Failed to load document: \(error)")
+            doc, error in
+ 
+            if let document = doc
+            {
+                self.document = document
+                runOnMain
+                {
+                    
+                    let docView = DocumentTiledView(frame: self.view.frame, document: document, scale: 1.0)
+                    
+                    self.view.addSubview(docView)
+                    self.documentView = docView
+                }
+            }
+            else
+            {
+                // TODO - alert user
+
+            }
         }
         
         /* FIXME
