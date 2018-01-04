@@ -103,6 +103,9 @@ public extension Document
     public func paintTileToImage(canvasSize: CGSize,
                                  tileRect: CGRect) -> UIImage?
     {
+        // the scaling etc here is all black magic.
+        // I don't really understand whats going on, other than that this combination works...
+        
         UIGraphicsBeginImageContextWithOptions(canvasSize, false, 2.0)
         let ctx = UIGraphicsGetCurrentContext()!
         ctx.scaleBy(x: 0.5,y: 0.5)
@@ -138,11 +141,23 @@ class DocumentTiledView: UIView
         
         myScale = scale
         initialSize = frame.size
-        docSize = document.sync { $0.getDocumentSizeAsCGSize() }
-        initialScaleFactor = (docSize.width / initialSize.width)
+        var size = document.sync { $0.getDocumentSizeAsCGSize() }
         
-        print("DocumentTiledView.init frame=\(frame.desc) docSize=\(docSize) initialScaleFactor=\(initialScaleFactor)")
-        super.init(frame: frame)
+        // avoid divide by zero crashes
+        if (size.width == 0)
+        {
+            size.width = 1
+        }
+        if (size.height == 0)
+        {
+            size.height = 1
+        }
+        self.docSize = size
+        initialScaleFactor = (docSize.width / initialSize.width)
+        let scaledFrame = CGRect(x: 0, y: 0, width: frame.width, height: frame.width * (docSize.height / docSize.width))
+        
+        print("DocumentTiledView.init frame=\(frame.desc) \n  scaledFrame=\(scaledFrame.desc)\n  docSize=\(docSize) \n  initialScaleFactor=\(initialScaleFactor)")
+        super.init(frame: scaledFrame)
         
         //self.contentScaleFactor = 1.0
         

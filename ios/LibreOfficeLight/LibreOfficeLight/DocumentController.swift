@@ -13,7 +13,7 @@ import LibreOfficeKitIOS
 // documents and holds a top entry to view the properties as well as a normal
 // menu to handle global actions
 // It is a delegate class to receive Menu events as well as file handling events
-class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewControllerDelegate
+class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewControllerDelegate, UIScrollViewDelegate
 {
     var document: DocumentHolder? = nil
     
@@ -26,7 +26,8 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     // holds known document types
     var KnownDocumentTypes : [String] = []
 
-
+    @IBOutlet weak var scrollView: UIScrollView!
+    
     // called once controller is loaded
     override func viewDidLoad()
     {
@@ -334,19 +335,15 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
  
             if let document = doc
             {
-                self.document = document
+
                 runOnMain
                 {
-                    
-                    let docView = DocumentTiledView(frame: self.view.frame, document: document, scale: 1.0)
-                    
-                    self.view.addSubview(docView)
-                    self.documentView = docView
+                    self.setDocument(doc: document)
                 }
             }
             else
             {
-                // TODO - alert user
+                // TODO - alert user of failure
 
             }
         }
@@ -354,6 +351,59 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
         /* FIXME
         BridgeLOkit_Sizing(4, 4, 256, 256);
  */
+    }
+    
+    /// Sets the document to use and set's up it's view. Should be called on the main thread
+    public func setDocument(doc: DocumentHolder)
+    {
+        if let exisingDoc = self.document
+        {
+            // TODO - cleanup
+            self.document = nil
+        }
+        if let exisitingView = self.documentView
+        {
+            exisitingView.removeFromSuperview()
+            self.documentView = nil // forces the close of the view and it's held documents before we setup the new one
+        }
+        
+        // setup the new doc view
+        self.document = doc
+
+        let frameToUse = self.scrollView.frame
+        
+        let docView = DocumentTiledView(frame: frameToUse, document: doc, scale: 1.0)
+        
+        self.scrollView.addSubview(docView)
+        self.scrollView.contentSize = docView.frame.size
+        self.documentView = docView
+        
+        // debugging view borders
+        self.scrollView.layer.borderColor = UIColor.red.cgColor
+        self.scrollView.layer.borderWidth = 1.0
+        docView.layer.borderColor = UIColor.green.cgColor
+        docView.layer.borderWidth = 1.0
+        
+    }
+    
+    // MARK: - UIScrollViewDelegate
+    
+    // return a view that will be scaled. if delegate returns nil, nothing happens
+    func viewForZooming(in scrollView: UIScrollView) -> UIView?
+    {
+        return self.documentView
+    }
+    
+    // called before the scroll view begins zooming its content
+    func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?)
+    {
+        print("scrollViewWillBeginZooming currentScale=\(scrollView.zoomScale)")
+    }
+    
+    // scale between minimum and maximum. called after any 'bounce' animations
+    func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat)
+    {
+        print("scrollViewDidEndZooming scale=\(scale)")
     }
 }
 
