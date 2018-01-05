@@ -1542,7 +1542,9 @@ void AquaSalGraphics::GetResolution( sal_Int32& rDPIX, sal_Int32& rDPIY )
     rDPIX = mnRealDPIX;
     rDPIY = mnRealDPIY;
 #else
-    rDPIX = rDPIY = 200; // FIXME
+    // This matches the default for VirtualDevice, and the calculations
+    // in the paint tile methods. (SwViewShell::PaintTile and elsewhere)
+    rDPIX = rDPIY = 96;
 #endif
 }
 
