@@ -45,7 +45,10 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
 
     override func viewDidAppear(_ animated: Bool)
     {
-        if let exampleDoc = Bundle.main.url(forResource: "example", withExtension: "odt")
+        let res = Bundle.main.url(forResource: "example", withExtension: "odt")
+        //let res = Bundle.main.url(forResource: "example2", withExtension: "docx")
+        
+        if let exampleDoc = res
         {
             self.doOpen(exampleDoc)
         }
@@ -379,11 +382,12 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
         self.documentView = docView
         
         // debugging view borders
+        /*
         self.scrollView.layer.borderColor = UIColor.red.cgColor
         self.scrollView.layer.borderWidth = 1.0
         docView.layer.borderColor = UIColor.green.cgColor
         docView.layer.borderWidth = 1.0
-        
+        */
     }
     
     // MARK: - UIScrollViewDelegate
@@ -404,6 +408,7 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat)
     {
         print("scrollViewDidEndZooming scale=\(scale)")
+        self.documentView?.scrollViewDidEndZooming(scrollView, with: view, atScale: scale)
     }
 }
 

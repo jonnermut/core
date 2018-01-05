@@ -166,8 +166,8 @@ class DocumentTiledView: UIView
         
         if let tiledLayer = self.layer as? CATiledLayer
         {
-            //tiledLayer.levelsOfDetail = 4
-            //tiledLayer.levelsOfDetailBias = 7
+            tiledLayer.levelsOfDetail = 4
+            tiledLayer.levelsOfDetailBias = 7
             tiledLayer.tileSize = CGSize(width: 1024.0, height: 1024.0)
             //tiledLayer.tileSize = CGSize(width: 512.0, height: 512.0)
         }
@@ -223,7 +223,7 @@ class DocumentTiledView: UIView
         drawCount += 1
         let filename = "tile\(drawCount).png"
         
-        print("drawLayer \(filename)\n  bounds=\(layer.bounds.desc)\n  ctm.a\(ctm.a)\n  tileSize=\(tileSize)\n   box=\(box.desc)")
+        print("drawLayer \(filename)\n  bounds=\(layer.bounds.desc)\n  ctm.a=\(ctm.a)\n  tileSize=\(tileSize)\n   box=\(box.desc)")
         
         //context.setFillColor(UIColor.white.cgColor)
         context.setFillColor(UIColor.blue.cgColor)
@@ -262,9 +262,6 @@ class DocumentTiledView: UIView
                 try? data.write(to: filename)
                 print("Wrote tile to: \(filename)")
             }
-            
-            // Start with identity matrix
-            let m1: CGAffineTransform = CGAffineTransform.identity
             
             // We use the UIImage draw function as it automatically handles the flipping of the co-ordinate system for us.
             UIGraphicsPushContext(context);
@@ -329,6 +326,10 @@ class DocumentTiledView: UIView
         super.setNeedsLayout()
     }
     
+    func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat)
+    {
+        //self.setNeedsDisplay()
+    }
 
     
 }
