@@ -106,11 +106,14 @@ public extension Document
         // the scaling etc here is all black magic.
         // I don't really understand whats going on, other than that this combination works...
         
-        UIGraphicsBeginImageContextWithOptions(canvasSize, false, 2.0)
+        UIGraphicsBeginImageContextWithOptions(canvasSize, false, 1.0)
         let ctx = UIGraphicsGetCurrentContext()!
-        ctx.scaleBy(x: 0.5,y: 0.5)
-        let modSize = CGSize(width: canvasSize.width * 2, height:canvasSize.height * 2)
-        self.paintTileToCurrentContext(canvasSize: modSize, tileRect: tileRect)
+        
+//        print(ctx)
+//        print(ctx.ctm)
+//        print(ctx.userSpaceToDeviceSpaceTransform)
+
+        self.paintTileToCurrentContext(canvasSize: canvasSize, tileRect: tileRect)
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return image
@@ -233,7 +236,6 @@ class DocumentTiledView: UIView
         // This is where the magic happens
         
         var pageRect = box.applying(CGAffineTransform(scaleX: initialScaleFactor, y: initialScaleFactor ))
-        pageRect.size = CGSize(width: box.width * initialScaleFactor * 2, height: box.height * initialScaleFactor * 2)
         print("  pageRect: \(pageRect.desc)")
         
         // Figure out how many pixels we need for the dimensions of our tile
@@ -264,20 +266,7 @@ class DocumentTiledView: UIView
             // Start with identity matrix
             let m1: CGAffineTransform = CGAffineTransform.identity
             
-            //let m2 = m1.scaledBy(x: 1, y: -1)
-            
-            // Move it to the right location
-            //let m3 = m2.translatedBy(x: box.origin.x, y: -box.origin.y )  // + bitmapSize.height / ctm.a
-            
-            // Scale it and flip in y axis
-            //let scaleToUse = CGFloat(1.0) // TODO: 1 / ctm.a (??)
-            //let m3 = m2.scaledBy(x: scaleToUse, y: -scaleToUse)
-            
-            // Apply it to the graphics context
-            //context.concatenate(m2)
-            
-            // Finally, draw the image onto the context
-            //context.draw(cgImg, in: box)
+            // We use the UIImage draw function as it automatically handles the flipping of the co-ordinate system for us.
             UIGraphicsPushContext(context);
             img.draw(in: box)
             UIGraphicsPopContext()

@@ -356,7 +356,7 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     /// Sets the document to use and set's up it's view. Should be called on the main thread
     public func setDocument(doc: DocumentHolder)
     {
-        if let exisingDoc = self.document
+        if let existingDoc = self.document
         {
             // TODO - cleanup
             self.document = nil
