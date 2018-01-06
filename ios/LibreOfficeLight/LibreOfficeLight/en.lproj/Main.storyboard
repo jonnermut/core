@@ -22,6 +22,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
+                            <view opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="URZ-zU-xtO" userLabel="Mask">
+                                <rect key="frame" x="0.0" y="64" width="768" height="960"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <subviews>
+                                    <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" fixedFrame="YES" progressViewStyle="bar" translatesAutoresizingMaskIntoConstraints="NO" id="hRJ-mR-Vnv">
+                                        <rect key="frame" x="309" y="479" width="150" height="1.5"/>
+                                        <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
+                                    </progressView>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" minimumZoomScale="0.5" maximumZoomScale="8" translatesAutoresizingMaskIntoConstraints="NO" id="cJ7-wO-9D1">
                                 <rect key="frame" x="0.0" y="64" width="768" height="960"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -49,12 +60,14 @@
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="mask" destination="URZ-zU-xtO" id="pkw-v3-0gr"/>
+                        <outlet property="progressBar" destination="hRJ-mR-Vnv" id="4lJ-kG-9SW"/>
                         <outlet property="scrollView" destination="cJ7-wO-9D1" id="U50-LO-plb"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1231" y="304"/>
+            <point key="canvasLocation" x="1230.46875" y="303.515625"/>
         </scene>
         <!--Print Manager-->
         <scene sceneID="viJ-XJ-htc">

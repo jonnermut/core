@@ -13,7 +13,7 @@ import LibreOfficeKitIOS
 // documents and holds a top entry to view the properties as well as a normal
 // menu to handle global actions
 // It is a delegate class to receive Menu events as well as file handling events
-class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewControllerDelegate, UIScrollViewDelegate
+class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewControllerDelegate, UIScrollViewDelegate, ProgressDelegate
 {
     var document: DocumentHolder? = nil
     
@@ -27,6 +27,8 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     var KnownDocumentTypes : [String] = []
 
     @IBOutlet weak var scrollView: UIScrollView!
+    @IBOutlet weak var mask: UIView!
+    @IBOutlet weak var progressBar: UIProgressView!
     
     // called once controller is loaded
     override func viewDidLoad()
@@ -41,6 +43,7 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
             let x = ((dict["UTTypeTagSpecification"]  as! NSDictionary)["public.filename-extension"] as! NSArray)
             KnownDocumentTypes.append( x[0] as! String )
         }
+        LOKitThread.instance.progressDelegate = self
     }
 
     override func viewDidAppear(_ animated: Bool)
@@ -409,6 +412,43 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     {
         print("scrollViewDidEndZooming scale=\(scale)")
         self.documentView?.scrollViewDidEndZooming(scrollView, with: view, atScale: scale)
+    }
+    
+    // MARK: -  UIKeyInput
+//    public var hasText: Bool
+//    {
+//        true
+//    }
+//
+//
+//    public func insertText(_ text: String)
+//    {
+//
+//    }
+//
+//    public func deleteBackward()
+//    {
+//
+//    }
+    
+    // MARK: - ProgressDelegate
+    func statusIndicatorStart()
+    {
+        self.mask?.isHidden = false
+        self.progressBar?.isHidden = false
+        self.progressBar?.progress = 0.0
+    }
+    
+    func statusIndicatorFinish()
+    {
+        // what would be nice would be to be able to wait until the initial tiles have rendered...
+        self.mask?.isHidden = true
+        self.progressBar?.isHidden = true
+    }
+    
+    func statusIndicatorSetValue(value: Double)
+    {
+        self.progressBar?.progress = Float(value) / 100.0
     }
 }
 

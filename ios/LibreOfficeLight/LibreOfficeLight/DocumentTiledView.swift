@@ -332,4 +332,8 @@ class DocumentTiledView: UIView
     }
 
     
+//    override func pressesBegan
+//    {
+//    
+//    }
 }

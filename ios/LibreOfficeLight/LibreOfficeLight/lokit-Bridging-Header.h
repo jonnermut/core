@@ -6,4 +6,5 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 
-
+#define LOK_USE_UNSTABLE_API 1
+#import "../../../include/LibreOfficeKit/LibreOfficeKitEnums.h"

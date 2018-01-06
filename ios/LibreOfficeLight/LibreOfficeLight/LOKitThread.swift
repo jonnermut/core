@@ -87,12 +87,47 @@ public class LOKitThread
     /// singleton LibreOffice instance. Can only be accessed through the queue.
     var libreOffice: LibreOffice! = nil // initialised in didFinishLaunchingWithOptions
 
-    
+    public weak var delegate: LOKitUIDelegate? = nil
+    public weak var progressDelegate: ProgressDelegate? = nil
+
     private init()
     {
 
         async {
             self.libreOffice = try! LibreOffice() // will blow up the app if it throws, but fair enough
+            
+            // hook up event handler
+            self.libreOffice.registerCallback(callback: self.onLOKEvent)
+
+        }
+    }
+    
+    private func onLOKEvent(type: LibreOfficeKitCallbackType, payload: String?)
+    {
+        //LibreOfficeLight.LibreOfficeKitKeyEventType.
+        print("onLOKEvent type:\(type) payload:\(payload ?? "")")
+        
+        switch type
+        {
+        case LOK_CALLBACK_STATUS_INDICATOR_START:
+            runOnMain {
+                self.progressDelegate?.statusIndicatorStart()
+            }
+            
+        case LOK_CALLBACK_STATUS_INDICATOR_SET_VALUE:
+            runOnMain {
+                if let doub = Double(payload ?? "")
+                {
+                    self.progressDelegate?.statusIndicatorSetValue(value: doub)
+                }
+            }
+            
+        case LOK_CALLBACK_STATUS_INDICATOR_FINISH:
+            runOnMain {
+                self.progressDelegate?.statusIndicatorFinish()
+            }
+        default:
+             print("onLOKEvent type:\(type) not handled!")
         }
     }
     
@@ -152,9 +187,15 @@ public class DocumentHolder
 {
     private let doc: Document
     
+    public weak var delegate: DocumentUIDelegate? = nil
+    
     init(doc: Document)
     {
         self.doc = doc
+        doc.registerCallback() {
+            [weak self] typ, payload in
+            self?.onDocumentEvent(type: typ, payload: payload)
+        }
     }
     
     /// Gives async access to the document
@@ -175,4 +216,93 @@ public class DocumentHolder
             return closure(self.doc)
         }
     }
+    
+    private func onDocumentEvent(type: LibreOfficeKitCallbackType, payload: String?)
+    {
+        print("onDocumentEvent type:\(type) payload:\(payload ?? "")")
+        
+        switch type
+        {
+        case LOK_CALLBACK_INVALIDATE_TILES:
+            runOnMain {
+                self.delegate?.invalidateTiles( rects: decodeRects(payload) )
+            }
+        case LOK_CALLBACK_INVALIDATE_VISIBLE_CURSOR:
+            runOnMain {
+                self.delegate?.invalidateVisibleCursor( rects: decodeRects(payload) )
+            }
+        case LOK_CALLBACK_TEXT_SELECTION:
+            runOnMain {
+                self.delegate?.textSelection( rects: decodeRects(payload) )
+            }
+        case LOK_CALLBACK_TEXT_SELECTION_START:
+            runOnMain {
+                self.delegate?.textSelectionStart( rects: decodeRects(payload) )
+            }
+        case LOK_CALLBACK_TEXT_SELECTION_END:
+            runOnMain {
+                self.delegate?.textSelectionEnd( rects: decodeRects(payload) )
+            }
+        default:
+            print("onDocumentEvent type:\(type) not handled!")
+        }
+    }
+}
+
+/// Decodes a series of rectangles in the form: "x, y, width, height; x, y, width, height"
+public func decodeRects(_ payload: String?) -> [CGRect]?
+{
+    guard var pl = payload else { return nil }
+    pl = pl.trimmingCharacters(in: .whitespacesAndNewlines )
+    if pl == "EMPTY" || pl.count == 0
+    {
+        return nil
+    }
+    var ret = [CGRect]()
+    for rectStr in pl.split(separator: ";")
+    {
+        let coords = rectStr.split(separator: ",").flatMap { Double($0) }
+        if coords.count == 4
+        {
+            let rect = CGRect(x: coords[0],
+                              y: coords[1],
+                              width: coords[2],
+                              height: coords[3])
+            ret.append( rect )
+        }
+    }
+    return ret
+}
+
+/**
+ * Delegate methods for global events emitted from LOKit.
+ * Mostly dispatched on the main thread unless noted.
+ */
+public protocol LOKitUIDelegate: class
+{
+    // Nothing ATM..
+}
+
+public protocol ProgressDelegate: class
+{
+    func statusIndicatorStart()
+    
+    func statusIndicatorFinish()
+    
+    func statusIndicatorSetValue(value: Double)
+}
+
+
+public protocol DocumentUIDelegate: class
+{
+    func invalidateTiles(rects: [CGRect]? )
+    
+    func invalidateVisibleCursor(rects: [CGRect]? )
+    
+    func textSelection(rects: [CGRect]? )
+    func textSelectionStart(rects: [CGRect]? )
+    func textSelectionEnd(rects: [CGRect]? )
+    
+    
+    
 }
