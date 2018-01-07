@@ -475,7 +475,13 @@ extension DocumentController: UISearchBarDelegate
     // called when keyboard search button pressed
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
     {
-        
+        if let text = searchBar.text
+        {
+            if text.count > 0
+            {
+                document?.search(searchString: text, forwardDirection: true, from: CGPoint(x:0, y:0) )
+            }
+        }
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar)

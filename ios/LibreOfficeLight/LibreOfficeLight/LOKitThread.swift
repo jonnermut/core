@@ -247,6 +247,46 @@ public class DocumentHolder
             print("onDocumentEvent type:\(type) not handled!")
         }
     }
+    
+    public func search(searchString: String, forwardDirection: Bool = true, from: CGPoint)
+    {
+        var rootJson = JSONObject()
+
+        addProperty(&rootJson, "SearchItem.SearchString", "string", searchString);
+        addProperty(&rootJson, "SearchItem.Backward", "boolean", String(forwardDirection) );
+        addProperty(&rootJson, "SearchItem.SearchStartPointX", "long", String(describing: from.x) );
+        addProperty(&rootJson, "SearchItem.SearchStartPointY", "long", String(describing: from.y) );
+        addProperty(&rootJson, "SearchItem.Command", "long", "1") // String.valueOf(0)); // search all == 1
+
+        if let jsonStr = encode(json: rootJson)
+        {
+            async {
+                $0.postUnoCommand(command: ".uno:ExecuteSearch", arguments: jsonStr, notifyWhenFinished: true)
+            }
+        }
+    }
+
+
+}
+
+public typealias JSONObject = Dictionary<String, AnyObject>
+public func addProperty( _ json: inout JSONObject, _ parentValue: String, _ type: String, _ value: String)
+{
+    var child = JSONObject();
+    child["type"] = type as AnyObject
+    child["value"] = value as AnyObject
+    json[parentValue] = child as AnyObject
+}
+
+func encode(json: JSONObject) -> String?
+{
+    //let encoder = JSONEncoder()
+
+    if let data = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
+    {
+        return String(data: data, encoding: String.Encoding.utf8)
+    }
+    return nil
 }
 
 /// Decodes a series of rectangles in the form: "x, y, width, height; x, y, width, height"
