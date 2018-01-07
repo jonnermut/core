@@ -13,7 +13,7 @@ import LibreOfficeKitIOS
 // documents and holds a top entry to view the properties as well as a normal
 // menu to handle global actions
 // It is a delegate class to receive Menu events as well as file handling events
-class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewControllerDelegate, UIScrollViewDelegate, ProgressDelegate
+class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewControllerDelegate
 {
     var document: DocumentHolder? = nil
     
@@ -29,6 +29,7 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var mask: UIView!
     @IBOutlet weak var progressBar: UIProgressView!
+    @IBOutlet weak var searchBar: UISearchBar!
     
     // called once controller is loaded
     override func viewDidLoad()
@@ -64,7 +65,11 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
         // not used in this App
     }
 
-
+    @IBAction func searchIconTapped(_ sender: Any)
+    {
+        searchBar.isHidden = !searchBar.isHidden
+    }
+    
 
     // *** Handling of Background (hipernate)
     // iOS is not true multitasking, only 1 app can be active (foreground) at any time,
@@ -394,7 +399,10 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     }
     
     // MARK: - UIScrollViewDelegate
-    
+}
+
+extension DocumentController: UIScrollViewDelegate
+{
     // return a view that will be scaled. if delegate returns nil, nothing happens
     func viewForZooming(in scrollView: UIScrollView) -> UIView?
     {
@@ -413,6 +421,7 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
         print("scrollViewDidEndZooming scale=\(scale)")
         self.documentView?.scrollViewDidEndZooming(scrollView, with: view, atScale: scale)
     }
+}
     
     // MARK: -  UIKeyInput
 //    public var hasText: Bool
@@ -430,7 +439,9 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
 //    {
 //
 //    }
-    
+
+extension DocumentController: ProgressDelegate
+{
     // MARK: - ProgressDelegate
     func statusIndicatorStart()
     {
@@ -452,4 +463,24 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     }
 }
 
+extension DocumentController: UISearchBarDelegate
+{
+    // called when text changes (including clear)
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String)
+    {
+    
+    }
+
+    
+    // called when keyboard search button pressed
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
+    {
+        
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar)
+    {
+        searchBar.isHidden = true
+    }
+}
 
