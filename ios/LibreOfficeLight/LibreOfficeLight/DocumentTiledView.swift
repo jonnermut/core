@@ -6,46 +6,9 @@
 //  Copyright © 2018 jani. All rights reserved.
 //
 
-import Foundation
+import UIKit
 import QuartzCore
-import LibreOfficeKitIOS
 
-
-public typealias Runnable = () -> ()
-
-/// Runs the closure on a queued background thread
-public func runInBackground(_ runnable: @escaping Runnable)
-{
-    DispatchQueue.global(qos: .background).async(execute: runnable)
-}
-
-
-/// Runs the closure on the UI (main) thread. Exceptions are caught and logged
-public func runOnMain(_ runnable: @escaping () -> ())
-{
-    DispatchQueue.main.async(execute: runnable)
-}
-
-/// Returns true if we are on the Main / UI thread
-public func isMainThread() -> Bool
-{
-    return Thread.isMainThread
-}
-
-
-func getDocumentsDirectory() -> URL
-{
-    let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-    return paths[0]
-}
-
-public extension CGRect
-{
-    public var desc: String
-    {
-        return "(x: \(self.origin.x), y: \(self.origin.y), width: \(self.size.width), height: \(self.size.height), maxX: \(self.maxX), maxY: \(self.maxY))"
-    }
-}
 
 class DocumentTiledLayer : CATiledLayer
 {
@@ -71,54 +34,6 @@ open class CachedRender
     }
 }
 
-/**
- * iOS friendly extensions of Document.
- * TODO: move me back to the framework.
- */
-public extension Document
-{
-    public func getDocumentSizeAsCGSize() -> CGSize
-    {
-        let (x,y) = self.getDocumentSize()
-        return CGSize(width: x, height: y)
-    }
-    
-    public func paintTileToCurrentContext(canvasSize: CGSize,
-                                          tileRect: CGRect)
-    {
-        let ctx = UIGraphicsGetCurrentContext()
-        //print(ctx!)
-        let ptr = unsafeBitCast(ctx, to: UnsafeMutablePointer<UInt8>.self)
-        //print(ptr)
-        
-        self.paintTile(pBuffer:ptr,
-                       canvasWidth: Int32(canvasSize.width),
-                       canvasHeight: Int32(canvasSize.height),
-                       tilePosX: Int32(tileRect.minX),
-                       tilePosY: Int32(tileRect.minY),
-                       tileWidth: Int32(tileRect.size.width),
-                       tileHeight: Int32(tileRect.size.height))
-    }
-    
-    public func paintTileToImage(canvasSize: CGSize,
-                                 tileRect: CGRect) -> UIImage?
-    {
-        // the scaling etc here is all black magic.
-        // I don't really understand whats going on, other than that this combination works...
-        
-        UIGraphicsBeginImageContextWithOptions(canvasSize, false, 1.0)
-        let ctx = UIGraphicsGetCurrentContext()!
-        
-//        print(ctx)
-//        print(ctx.ctm)
-//        print(ctx.userSpaceToDeviceSpaceTransform)
-
-        self.paintTileToCurrentContext(canvasSize: canvasSize, tileRect: tileRect)
-        let image = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return image
-    }
-}
 
 class DocumentTiledView: UIView
 {
@@ -253,7 +168,7 @@ class DocumentTiledView: UIView
             $0.paintTileToImage(canvasSize: canvasSize, tileRect: pageRect)
         }
         
-        if let img = image, let cgImg = img.cgImage
+        if let img = image
         {
             // Debugging: write the file to disk
             if let data = UIImagePNGRepresentation(img)

@@ -7,7 +7,6 @@
 //
 import UIKit
 import Foundation
-import LibreOfficeKitIOS
 
 
 // AppDelegate is a Delegate class that receives calls from the iOS

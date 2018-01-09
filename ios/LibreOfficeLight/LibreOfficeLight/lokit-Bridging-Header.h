@@ -7,7 +7,7 @@
 //
 
 
-
+#define LOK_USE_UNSTABLE_API 1
 // LibreOfficeKit is a prelink of all used LO libraries, generated
 // as its own xCode project.
 #import "../../source/LibreOfficeKit.h"

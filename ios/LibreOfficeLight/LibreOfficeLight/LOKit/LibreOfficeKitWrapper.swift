@@ -5,7 +5,7 @@
 //
 
 import Foundation
-import LibreOfficeKitPrivate
+
 
 public struct LibreOfficeError: Error
 {

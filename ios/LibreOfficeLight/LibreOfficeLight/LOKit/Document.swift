@@ -7,25 +7,9 @@
 //
 
 import Foundation
-import LibreOfficeKitPrivate
+import UIKit
+import QuartzCore
 
-public func toString(_ pointer: UnsafeMutablePointer<Int8>?) -> String?
-{
-    if let p = pointer
-    {
-        return String(cString: p)
-    }
-    return nil
-}
-
-public func toString(_ pointer: UnsafePointer<Int8>?) -> String?
-{
-    if let p = pointer
-    {
-        return String(cString: p)
-    }
-    return nil
-}
 
 /// The Document class represents one loaded document instance
 /// Obtained through LibreOffice.documentLoad()
@@ -555,10 +539,51 @@ open class Document
 }
 
 /**
- * iOS friendly extensions of Document 
+ * iOS friendly extensions of Document.
+ * TODO: move me back to the framework.
  */
 public extension Document
 {
-
+    public func getDocumentSizeAsCGSize() -> CGSize
+    {
+        let (x,y) = self.getDocumentSize()
+        return CGSize(width: x, height: y)
+    }
+    
+    public func paintTileToCurrentContext(canvasSize: CGSize,
+                                          tileRect: CGRect)
+    {
+        let ctx = UIGraphicsGetCurrentContext()
+        //print(ctx!)
+        let ptr = unsafeBitCast(ctx, to: UnsafeMutablePointer<UInt8>.self)
+        //print(ptr)
+        
+        self.paintTile(pBuffer:ptr,
+                       canvasWidth: Int32(canvasSize.width),
+                       canvasHeight: Int32(canvasSize.height),
+                       tilePosX: Int32(tileRect.minX),
+                       tilePosY: Int32(tileRect.minY),
+                       tileWidth: Int32(tileRect.size.width),
+                       tileHeight: Int32(tileRect.size.height))
+    }
+    
+    public func paintTileToImage(canvasSize: CGSize,
+                                 tileRect: CGRect) -> UIImage?
+    {
+        // the scaling etc here is all black magic.
+        // I don't really understand whats going on, other than that this combination works...
+        
+        UIGraphicsBeginImageContextWithOptions(canvasSize, false, 1.0)
+        let ctx = UIGraphicsGetCurrentContext()!
+        
+        //        print(ctx)
+        //        print(ctx.ctm)
+        //        print(ctx.userSpaceToDeviceSpaceTransform)
+        
+        self.paintTileToCurrentContext(canvasSize: canvasSize, tileRect: tileRect)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image
+    }
 }
 
