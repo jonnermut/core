@@ -7,7 +7,7 @@
 //
 import UIKit
 import Foundation
-
+import LibreOfficeKitIOS
 
 
 // AppDelegate is a Delegate class that receives calls from the iOS
@@ -16,6 +16,7 @@ import Foundation
 class AppDelegate: UIResponder, UIApplicationDelegate
 {
     var window: UIWindow?
+
 
 
 
@@ -46,7 +47,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate
         defaults.synchronize()
 
         // start LibreOfficeKit
-        BridgeLOkit_Init(Bundle.main.bundlePath)
+        let _ = LOKitThread.instance
+
         return true
     }
 
@@ -106,4 +108,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate
         document.Hipernate()
     }
 }
+
+func getAppDelegate() -> AppDelegate
+{
+    return UIApplication.shared.delegate as! AppDelegate
+}
+
 
