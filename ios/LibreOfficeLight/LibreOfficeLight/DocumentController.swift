@@ -67,6 +67,10 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     @IBAction func searchIconTapped(_ sender: Any)
     {
         searchBar.isHidden = !searchBar.isHidden
+        if (!searchBar.isHidden)
+        {
+            searchBar.becomeFirstResponder()
+        }
     }
     
 

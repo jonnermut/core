@@ -150,7 +150,7 @@ class DocumentTiledView: UIView
 
         // This is where the magic happens
         
-        var pageRect = box.applying(CGAffineTransform(scaleX: initialScaleFactor, y: initialScaleFactor ))
+        let pageRect = box.applying(CGAffineTransform(scaleX: initialScaleFactor, y: initialScaleFactor ))
         print("  pageRect: \(pageRect.desc)")
         
         // Figure out how many pixels we need for the dimensions of our tile
@@ -171,12 +171,14 @@ class DocumentTiledView: UIView
         if let img = image
         {
             // Debugging: write the file to disk
+            /*
             if let data = UIImagePNGRepresentation(img)
             {
                 let filename = getDocumentsDirectory().appendingPathComponent(filename)
                 try? data.write(to: filename)
                 print("Wrote tile to: \(filename)")
             }
+            */
             
             // We use the UIImage draw function as it automatically handles the flipping of the co-ordinate system for us.
             UIGraphicsPushContext(context);
@@ -189,30 +191,7 @@ class DocumentTiledView: UIView
 
     }
     
-    
-    // ALWAYS have content scale factor be 1.0
-    // The OS randomly setting this to 2.0 causes quite strange behaviour, particularly on
-    // full screen transitions
-    // This will probably need revisiting if valid values are ever other than 1.0 & 2.0
-//    override var contentScaleFactor : CGFloat
-//    {
-//        get
-//        {
-//            return 1.0
-//        }
-//        set
-//        {
-//            // We want to return 1.0 anyway
-//        }
-//    }
-    
-    override func layoutSubviews()
-    {
 
-        super.layoutSubviews()
-
-        //self.contentScaleFactor = 1.0
-    }
     
     /*
     fileprivate func emptyCache()
@@ -236,10 +215,6 @@ class DocumentTiledView: UIView
         
     }
     
-    override func setNeedsLayout()
-    {
-        super.setNeedsLayout()
-    }
     
     func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat)
     {
