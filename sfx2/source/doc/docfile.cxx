@@ -191,6 +191,7 @@ public:
     bool m_bRemote:1;
     bool m_bInputStreamIsReadOnly:1;
     bool m_bInCheckIn:1;
+    bool m_bDisableFileSync = false;
 
     OUString m_aName;
     OUString m_aLogicName;
@@ -1721,29 +1722,36 @@ void SfxMedium::TransactedTransferForFS_Impl( const INetURLObject& aSource,
 
             try
             {
-                if( bOverWrite && ::utl::UCBContentHelper::IsDocument( aDest.GetMainURL( INetURLObject::DecodeMechanism::NONE ) ) )
+                OUString aSourceMainURL = aSource.GetMainURL(INetURLObject::DecodeMechanism::NONE);
+                OUString aDestMainURL = aDest.GetMainURL(INetURLObject::DecodeMechanism::NONE);
+                if (comphelper::isFileUrl(aDestMainURL) && osl::File::move(aSourceMainURL, aDestMainURL) == osl::FileBase::E_None)
+                    bResult = true;
+                else
                 {
-                    if( pImpl->m_aBackupURL.isEmpty() )
-                        DoInternalBackup_Impl( aOriginalContent );
-
-                    if( !pImpl->m_aBackupURL.isEmpty() )
+                    if (bOverWrite && ::utl::UCBContentHelper::IsDocument(aDestMainURL))
                     {
-                        Reference< XInputStream > aTempInput = aTempCont.openStream();
-                        bTransactStarted = true;
-                        aOriginalContent.setPropertyValue( "Size", uno::makeAny( (sal_Int64)0 ) );
-                        aOriginalContent.writeStream( aTempInput, bOverWrite );
-                        bResult = true;
+                        if( pImpl->m_aBackupURL.isEmpty() )
+                            DoInternalBackup_Impl( aOriginalContent );
+
+                        if( !pImpl->m_aBackupURL.isEmpty() )
+                        {
+                            Reference< XInputStream > aTempInput = aTempCont.openStream();
+                            bTransactStarted = true;
+                            aOriginalContent.setPropertyValue( "Size", uno::makeAny( (sal_Int64)0 ) );
+                            aOriginalContent.writeStream( aTempInput, bOverWrite );
+                            bResult = true;
+                        }
+                        else
+                        {
+                            pImpl->m_eError = ERRCODE_SFX_CANTCREATEBACKUP;
+                        }
                     }
                     else
                     {
-                        pImpl->m_eError = ERRCODE_SFX_CANTCREATEBACKUP;
+                        Reference< XInputStream > aTempInput = aTempCont.openStream();
+                        aOriginalContent.writeStream( aTempInput, bOverWrite );
+                        bResult = true;
                     }
-                }
-                else
-                {
-                    Reference< XInputStream > aTempInput = aTempCont.openStream();
-                    aOriginalContent.writeStream( aTempInput, bOverWrite );
-                    bResult = true;
                 }
             }
             catch ( const css::ucb::CommandAbortedException& )
@@ -1965,13 +1973,16 @@ void SfxMedium::Transfer_Impl()
         {
             TransactedTransferForFS_Impl( aSource, aDest, xComEnv );
 
-            // Hideous - no clean way to do this, so we re-open the file just to fsync it
-            osl::File aFile( aDestURL );
-            if ( aFile.open( osl_File_OpenFlag_Write ) == osl::FileBase::E_None )
+            if (!pImpl->m_bDisableFileSync)
             {
-                aFile.sync();
-                SAL_INFO( "sfx.doc", "fsync'd saved file '" << aDestURL << "'" );
-                aFile.close();
+                // Hideous - no clean way to do this, so we re-open the file just to fsync it
+                osl::File aFile( aDestURL );
+                if ( aFile.open( osl_File_OpenFlag_Write ) == osl::FileBase::E_None )
+                {
+                    aFile.sync();
+                    SAL_INFO( "sfx.doc", "fsync'd saved file '" << aDestURL << "'" );
+                    aFile.close();
+                }
             }
         }
         else
@@ -2727,6 +2738,11 @@ void SfxMedium::DisableUnlockWebDAV( bool bDisableUnlockWebDAV )
     pImpl->m_bDisableUnlockWebDAV = bDisableUnlockWebDAV;
 }
 
+void SfxMedium::DisableFileSync(bool bDisableFileSync)
+{
+    pImpl->m_bDisableFileSync = bDisableFileSync;
+}
+
 void SfxMedium::UnlockFile( bool bReleaseLockStream )
 {
 #if !HAVE_FEATURE_MULTIUSER_ENVIRONMENT
@@ -3385,7 +3401,18 @@ void SfxMedium::CreateTempFile( bool bReplace )
         pImpl->m_aName.clear();
     }
 
-    pImpl->pTempFile = new ::utl::TempFile();
+    OUString aLogicBase;
+    if (comphelper::isFileUrl(pImpl->m_aLogicName) && !pImpl->m_pInStream)
+    {
+        // Try to create the temp file in the same directory when storing.
+        sal_Int32 nOffset = pImpl->m_aLogicName.lastIndexOf("/");
+        if (nOffset != -1)
+            aLogicBase = pImpl->m_aLogicName.copy(0, nOffset);
+        if (aLogicBase == "file://")
+            // Doesn't make sense.
+            aLogicBase.clear();
+    }
+    pImpl->pTempFile = new ::utl::TempFile(aLogicBase.isEmpty() ? nullptr : &aLogicBase);
     pImpl->pTempFile->EnableKillingFile();
     pImpl->m_aName = pImpl->pTempFile->GetFileName();
     OUString aTmpURL = pImpl->pTempFile->GetURL();
