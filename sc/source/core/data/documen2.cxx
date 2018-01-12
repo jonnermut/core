@@ -203,6 +203,7 @@ ScDocument::ScDocument( ScDocumentMode eMode, SfxObjectShell* pDocShell ) :
         bInDtorClear( false ),
         bExpandRefs( false ),
         bDetectiveDirty( false ),
+        bLinkFormulaNeedingCheck( false ),
         nAsianCompression(CharCompressType::Invalid),
         nAsianKerning(SC_ASIANKERNING_INVALID),
         bPastingDrawFromOtherDoc( false ),
@@ -1030,7 +1031,7 @@ sal_uLong ScDocument::TransferTab( ScDocument* pSrcDoc, SCTAB nSrcPos,
             NumFmtMergeHandler aNumFmtMergeHdl(this, pSrcDoc);
 
             sc::CopyToDocContext aCxt(*this);
-            nDestPos = std::min(nDestPos, (SCTAB)(GetTableCount() - 1));
+            nDestPos = std::min(nDestPos, static_cast<SCTAB>(GetTableCount() - 1));
             {   // scope for bulk broadcast
                 ScBulkBroadcast aBulkBroadcast( pBASM, SfxHintId::ScDataChanged);
                 if (!bResultsOnly)

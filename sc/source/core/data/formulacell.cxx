@@ -1358,6 +1358,11 @@ void ScFormulaCell::CompileXML( sc::CompileFormulaContext& rCxt, ScProgress& rPr
             bChanged = true;
     }
 
+    //  After loading, it must be known if ocDde/ocWebservice is in any formula
+    //  (for external links warning, CompileXML is called at the end of loading XML file)
+    if (!pDocument->HasLinkFormulaNeedingCheck() && (pCode->HasOpCodeRPN(ocDde) || pCode->HasOpCodeRPN(ocWebservice)))
+        pDocument->SetLinkFormulaNeedingCheck(true);
+
     //volatile cells must be added here for import
     if( pCode->IsRecalcModeAlways() || pCode->IsRecalcModeForced() ||
         pCode->IsRecalcModeOnLoad() || pCode->IsRecalcModeOnLoadOnce() )
@@ -4550,7 +4555,7 @@ bool ScFormulaCell::InterpretFormulaGroup()
         if (pInterpreter == nullptr ||
             !pInterpreter->interpret(*pDocument, xGroup->mpTopCell->aPos, xGroup, aCode))
         {
-            SAL_INFO("sc.opencl", "interpreting group " << mxGroup << " (state " << (int) mxGroup->meCalcState << ") failed, disabling");
+            SAL_INFO("sc.opencl", "interpreting group " << mxGroup << " (state " << static_cast<int>(mxGroup->meCalcState) << ") failed, disabling");
             mxGroup->meCalcState = sc::GroupCalcDisabled;
 
             // Undo the hack above

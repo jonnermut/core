@@ -2075,7 +2075,7 @@ static void doc_paintPartTile(LibreOfficeKitDocument* pThis,
                 {
                     if (pViewShell->getPart() == nPart)
                     {
-                        nViewId = (sal_Int32)pViewShell->GetViewShellId();
+                        nViewId = static_cast<sal_Int32>(pViewShell->GetViewShellId());
                         doc_setView(pThis, nViewId);
                         break;
                     }
@@ -2636,7 +2636,7 @@ static char* getFonts (const char* pCommand)
             while (pAry[nSizeCount])
             {
                 boost::property_tree::ptree aChild;
-                aChild.put("", (float)pAry[nSizeCount] / 10);
+                aChild.put("", static_cast<float>(pAry[nSizeCount]) / 10);
                 aChildren.push_back(std::make_pair("", aChild));
                 nSizeCount++;
             }
@@ -3438,7 +3438,7 @@ static bool initialize_uno(const OUString& aAppProgramURL)
 {
 #ifdef IOS
     // For iOS we already hardcode the inifile as "rc" in the .app directory.
-    rtl::Bootstrap::setIniFilename(aAppProgramURL + "/" SAL_CONFIGFILE("soffice"));
+    rtl::Bootstrap::setIniFilename(aAppProgramURL + "/" SAL_CONFIGFILE("fundamental"));
     xContext = cppu::defaultBootstrap_InitialComponentContext(aAppProgramURL + "/rc");
 #elif defined MACOSX
     rtl::Bootstrap::setIniFilename(aAppProgramURL + "/../Resources/" SAL_CONFIGFILE("soffice"));

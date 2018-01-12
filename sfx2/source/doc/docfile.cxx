@@ -121,6 +121,7 @@
 #include <openflag.hxx>
 #include <sfx2/sfxresid.hxx>
 #include <officecfg/Office/Common.hxx>
+#include <comphelper/propertysequence.hxx>
 
 #include <com/sun/star/io/WrongFormatException.hpp>
 
@@ -1369,6 +1370,14 @@ uno::Reference < embed::XStorage > SfxMedium::GetStorage( bool bCreateTempIfNo )
         aArgs[0] <<= pImpl->xStream;
         aArgs[1] <<= embed::ElementModes::READWRITE;
         pImpl->bStorageBasedOnInStream = true;
+        if (pImpl->m_bDisableFileSync)
+        {
+            // Forward NoFileSync to the storage factory.
+            aArgs.realloc(3);
+            uno::Sequence<beans::PropertyValue> aProperties(
+                comphelper::InitPropertySequence({ { "NoFileSync", uno::makeAny(true) } }));
+            aArgs[2] <<= aProperties;
+        }
     }
     else if ( pImpl->xInputStream.is() )
     {
@@ -1426,7 +1435,7 @@ uno::Reference < embed::XStorage > SfxMedium::GetStorage( bool bCreateTempIfNo )
             // current version
             short nVersion = pVersion ? pVersion->GetValue() : 0;
             if ( nVersion<0 )
-                nVersion = ( (short) pImpl->aVersions.getLength() ) + nVersion;
+                nVersion = static_cast<short>(pImpl->aVersions.getLength()) + nVersion;
             else if ( nVersion )
                 nVersion--;
 
@@ -1737,7 +1746,7 @@ void SfxMedium::TransactedTransferForFS_Impl( const INetURLObject& aSource,
                         {
                             Reference< XInputStream > aTempInput = aTempCont.openStream();
                             bTransactStarted = true;
-                            aOriginalContent.setPropertyValue( "Size", uno::makeAny( (sal_Int64)0 ) );
+                            aOriginalContent.setPropertyValue( "Size", uno::makeAny( sal_Int64(0) ) );
                             aOriginalContent.writeStream( aTempInput, bOverWrite );
                             bResult = true;
                         }

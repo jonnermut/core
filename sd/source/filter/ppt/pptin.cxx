@@ -487,7 +487,7 @@ bool ImplSdPPTImport::Import()
                                                         sal_Int32 nNumber = aStringAry[ nToken ].toInt32();
                                                         if ( ( nNumber & ~0xff ) == 0 )
                                                         {
-                                                            nPageNumber = (sal_uInt32)nNumber - 1;
+                                                            nPageNumber = static_cast<sal_uInt32>(nNumber) - 1;
                                                             bDocInternalSubAddress = true;
                                                             break;
                                                         }
@@ -501,7 +501,7 @@ bool ImplSdPPTImport::Import()
                                                     pHyperlink->aConvSubString = maSlideNameList[ nPageNumber ];
                                                 if ( pHyperlink->aConvSubString.isEmpty() )
                                                 {
-                                                    pHyperlink->aConvSubString = SdResId( STR_PAGE ) + " " + ( mpDoc->CreatePageNumValue( (sal_uInt16)nPageNumber + 1 ) );
+                                                    pHyperlink->aConvSubString = SdResId( STR_PAGE ) + " " + ( mpDoc->CreatePageNumValue( static_cast<sal_uInt16>(nPageNumber) + 1 ) );
                                                 }
                                             } else {
                                                 // if sub address is given but not internal, use it as it is
@@ -634,7 +634,7 @@ bool ImplSdPPTImport::Import()
                         if ( ePgKind == PageKind::Standard )
                         {   // standard page: create new presentation layout
                             aLayoutName = SdResId( STR_LAYOUT_DEFAULT_TITLE_NAME );
-                            aLayoutName += OUString::number( (sal_Int32)( ( nMasterNum + 1 ) / 2 - 1 ) );
+                            aLayoutName += OUString::number( static_cast<sal_Int32>( ( nMasterNum + 1 ) / 2 - 1 ) );
                             static_cast<SdStyleSheetPool*>( mpDoc->GetStyleSheetPool() )->CreateLayoutStyleSheets( aLayoutName );
                         }
                         else    // note page: use presentation layout of standard page
@@ -1953,15 +1953,21 @@ OUString ImplSdPPTImport::ReadSound(sal_uInt32 nSoundRef) const
                             INetURLObject aGalleryUserSound( aGalleryDir.getToken( nTokenCount - 1, ';' ) );
 
                             aGalleryUserSound.Append( aRetval );
+                            const auto nRemainingSize = rStCtrl.remainingSize();
                             sal_uInt32 nSoundDataLen = aSoundDataRecHd.nRecLen;
-                            std::unique_ptr<sal_uInt8[]> pBuf( new sal_uInt8[ nSoundDataLen ] );
+                            if (nSoundDataLen > nRemainingSize)
+                            {
+                                SAL_WARN("filter.ms", "sound data len longer than remaining stream size");
+                                nSoundDataLen = nRemainingSize;
+                            }
+                            std::vector<sal_uInt8> aBuf(nSoundDataLen);
 
-                            rStCtrl.ReadBytes(pBuf.get(), nSoundDataLen);
+                            rStCtrl.ReadBytes(aBuf.data(), nSoundDataLen);
                             SvStream* pOStm = ::utl::UcbStreamHelper::CreateStream( aGalleryUserSound.GetMainURL( INetURLObject::DecodeMechanism::NONE ), StreamMode::WRITE | StreamMode::TRUNC );
 
                             if( pOStm )
                             {
-                                pOStm->WriteBytes(pBuf.get(), nSoundDataLen);
+                                pOStm->WriteBytes(aBuf.data(), nSoundDataLen);
 
                                 if( pOStm->GetError() == ERRCODE_NONE )
                                 {
@@ -2484,8 +2490,8 @@ SdrObject* ImplSdPPTImport::ApplyTextObj( PPTTextObj* pTextObj, SdrTextObj* pObj
                                             std::abs(aLogicRect.Top()    - aOutlineRect.Top())    > MAX_USER_MOVE ||
                                             std::abs(aLogicRect.Bottom() - aOutlineRect.Bottom()) > MAX_USER_MOVE ||
                                             aOutlineSize.Width() == 0                                             ||
-                                            (double)aLogicSize.Width()  / aOutlineSize.Width()   < 0.48           ||
-                                            (double)aLogicSize.Width()  / aOutlineSize.Width()   > 0.5)
+                                            static_cast<double>(aLogicSize.Width())  / aOutlineSize.Width()   < 0.48           ||
+                                            static_cast<double>(aLogicSize.Width())  / aOutlineSize.Width()   > 0.5)
                                         {
                                             pPresObj->SetUserCall(nullptr);
                                         }
@@ -2515,8 +2521,8 @@ SdrObject* ImplSdPPTImport::ApplyTextObj( PPTTextObj* pTextObj, SdrTextObj* pObj
                                             std::abs(aLogicRect.Top()    - aOutlineRect.Top())    > MAX_USER_MOVE ||
                                             std::abs(aLogicRect.Bottom() - aOutlineRect.Bottom()) > MAX_USER_MOVE ||
                                             aOutlineSize.Width() == 0                                             ||
-                                            (double)aLogicSize.Width()  / aOutlineSize.Width()   < 0.48           ||
-                                            (double)aLogicSize.Width()  / aOutlineSize.Width()   > 0.5)
+                                            static_cast<double>(aLogicSize.Width())  / aOutlineSize.Width()   < 0.48           ||
+                                            static_cast<double>(aLogicSize.Width())  / aOutlineSize.Width()   > 0.5)
                                         {
                                             pPresObj->SetUserCall( nullptr );
                                         }
