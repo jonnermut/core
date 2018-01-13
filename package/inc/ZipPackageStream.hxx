@@ -83,9 +83,10 @@ public:
     bool IsFromManifest() const { return m_bFromManifest; }
     void SetFromManifest( bool bValue ) { m_bFromManifest = bValue; }
 
-    ::rtl::Reference< EncryptionData > GetEncryptionData( bool bWinEncoding = false );
+    enum class Bugs { None, WinEncodingWrongSHA1, WrongSHA1 };
+    ::rtl::Reference<EncryptionData> GetEncryptionData(Bugs bugs = Bugs::None);
 
-    css::uno::Sequence< sal_Int8 > GetEncryptionKey( bool bWinEncoding = false );
+    css::uno::Sequence<sal_Int8> GetEncryptionKey(Bugs bugs = Bugs::None);
 
     sal_Int32 GetStartKeyGenID();
 
@@ -132,6 +133,7 @@ public:
                             std::vector < css::uno::Sequence < css::beans::PropertyValue > > &rManList,
                             ZipOutputStream & rZipOut,
                             const css::uno::Sequence < sal_Int8 >& rEncryptionKey,
+                            sal_Int32 nPBKDF2IterationCount,
                             const rtlRandomPool &rRandomPool ) override;
 
     void setZipEntryOnLoading( const ZipEntry &rInEntry);

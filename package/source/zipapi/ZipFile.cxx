@@ -144,7 +144,16 @@ uno::Reference< xml::crypto::XDigestContext > ZipFile::StaticGetDigestContextFor
         xDigestContext.set( xDigestContextSupplier->getDigestContext( xEncryptionData->m_nCheckAlg, uno::Sequence< beans::NamedValue >() ), uno::UNO_SET_THROW );
     }
     else if ( xEncryptionData->m_nCheckAlg == xml::crypto::DigestID::SHA1_1K )
-        xDigestContext.set( SHA1DigestContext::Create(), uno::UNO_SET_THROW );
+    {
+        if (xEncryptionData->m_bTryWrongSHA1)
+        {
+            xDigestContext.set(StarOfficeSHA1DigestContext::Create(), uno::UNO_SET_THROW);
+        }
+        else
+        {
+            xDigestContext.set(CorrectSHA1DigestContext::Create(), uno::UNO_SET_THROW);
+        }
+    }
 
     return xDigestContext;
 }
@@ -161,7 +170,14 @@ uno::Reference< xml::crypto::XCipherContext > ZipFile::StaticGetCipher( const un
         }
 
         uno::Sequence< sal_Int8 > aDerivedKey( xEncryptionData->m_nDerivedKeySize );
-        if ( rtl_Digest_E_None != rtl_digest_PBKDF2( reinterpret_cast< sal_uInt8* >( aDerivedKey.getArray() ),
+        if ( !xEncryptionData->m_nIterationCount &&
+             xEncryptionData->m_nDerivedKeySize == xEncryptionData->m_aKey.getLength() )
+        {
+            // gpg4libre: no need to derive key, m_aKey is already
+            // usable as symmetric session key
+            aDerivedKey = xEncryptionData->m_aKey;
+        }
+        else if ( rtl_Digest_E_None != rtl_digest_PBKDF2( reinterpret_cast< sal_uInt8* >( aDerivedKey.getArray() ),
                             aDerivedKey.getLength(),
                             reinterpret_cast< const sal_uInt8 * > (xEncryptionData->m_aKey.getConstArray() ),
                             xEncryptionData->m_aKey.getLength(),
