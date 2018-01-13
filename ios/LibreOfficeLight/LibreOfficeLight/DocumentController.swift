@@ -17,6 +17,7 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     var document: DocumentHolder? = nil
 
     var documentView: DocumentTiledView? = nil
+    var documentOverlaysView: DocumentOverlaysView? = nil
 
     // *** Handling of DocumentController
     // this is normal functions every controller must implement
@@ -370,7 +371,7 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     /// Sets the document to use and set's up it's view. Should be called on the main thread
     public func setDocument(doc: DocumentHolder)
     {
-        if let existingDoc = self.document
+        if let _ = self.document
         {
             // TODO - cleanup
             self.document = nil
@@ -380,9 +381,13 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
             exisitingView.removeFromSuperview()
             self.documentView = nil // forces the close of the view and it's held documents before we setup the new one
         }
+        // also remove current overlays and start fresh
+        documentOverlaysView?.removeFromSuperview()
 
         // setup the new doc view
         self.document = doc
+        // setup delegates
+        doc.searchDelegate = self
 
         let frameToUse = self.scrollView.frame
 
@@ -391,7 +396,12 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
         self.scrollView.addSubview(docView)
         self.scrollView.contentSize = docView.frame.size
         self.documentView = docView
-
+        
+        // overlay view
+        let overlay = DocumentOverlaysView(docTiledView: docView)
+        docView.addSubview(overlay)
+        self.documentOverlaysView = overlay
+        
         // debugging view borders
         /*
         self.scrollView.layer.borderColor = UIColor.red.cgColor
@@ -493,3 +503,16 @@ extension DocumentController: UISearchBarDelegate
     }
 }
 
+extension DocumentController: SearchDelegate
+{
+    func searchNotFound()
+    {
+        // TODO: tell user somehow
+        self.documentOverlaysView?.clearSearchResults()
+    }
+    
+    func searchResultSelection(searchResults: SearchResults)
+    {
+        self.documentOverlaysView?.setSearchResults(searchResults: searchResults)
+    }
+}

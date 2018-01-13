@@ -127,6 +127,7 @@ public class DocumentHolder
     private let doc: Document
 
     public weak var delegate: DocumentUIDelegate? = nil
+    public weak var searchDelegate: SearchDelegate? = nil
 
     init(doc: Document)
     {
@@ -182,11 +183,52 @@ public class DocumentHolder
             runOnMain {
                 self.delegate?.textSelectionEnd( rects: decodeRects(payload) )
             }
+            
+        case LOK_CALLBACK_SEARCH_NOT_FOUND:
+            runOnMain {
+                self.searchDelegate?.searchNotFound()
+            }
+        case LOK_CALLBACK_SEARCH_RESULT_SELECTION:
+            runOnMain {
+                self.searchResults(payload: payload)
+            }
+            
+            
         default:
             print("onDocumentEvent type:\(type) not handled!")
         }
     }
 
+    private func searchResults(payload: String?)
+    {
+        if let d = payload, let data = d.data(using: .utf8)
+        {
+            let decoder = JSONDecoder()
+            
+            do
+            {
+                let searchResults = try decoder.decode(SearchResults.self, from: data )
+                
+                /*
+                if let srs = searchResults.searchResultSelection
+                {
+                    for par in srs
+                    {
+                        print("\(par.rectsAsCGRects)")
+                    }
+                }
+                */
+                
+                self.searchDelegate?.searchResultSelection(searchResults: searchResults)
+            }
+            catch
+            {
+                print("Error decoding payload: \(error)")
+            }
+
+        }
+    }
+    
     public func search(searchString: String, forwardDirection: Bool = true, from: CGPoint)
     {
         var rootJson = JSONObject()
@@ -240,7 +282,7 @@ public func decodeRects(_ payload: String?) -> [CGRect]?
     var ret = [CGRect]()
     for rectStr in pl.split(separator: ";")
     {
-        let coords = rectStr.split(separator: ",").flatMap { Double($0) }
+        let coords = rectStr.split(separator: ",").flatMap { Double($0.trimmingCharacters(in: .whitespacesAndNewlines)) }
         if coords.count == 4
         {
             let rect = CGRect(x: coords[0],
@@ -281,7 +323,69 @@ public protocol DocumentUIDelegate: class
     func textSelection(rects: [CGRect]? )
     func textSelectionStart(rects: [CGRect]? )
     func textSelectionEnd(rects: [CGRect]? )
+}
 
+public protocol SearchDelegate: class
+{
+    func searchNotFound()
+    
+    func searchResultSelection(searchResults: SearchResults)
+}
 
+/**
+ Encodes this example json:
+ {
+ "searchString": "Office",
+ "highlightAll": "true",
+ "searchResultSelection": [
+ {
+ "part": "0",
+ "rectangles": "1951, 10743, 627, 239"
+ },
+ {
+ "part": "0",
+ "rectangles": "5343, 9496, 627, 287"
+ },
+ {
+ "part": "0",
+ "rectangles": "1951, 9256, 627, 239"
+ },
+ {
+ "part": "0",
+ "rectangles": "6502, 5946, 626, 287"
+ },
+ {
+ "part": "0",
+ "rectangles": "6686, 5658, 627, 287"
+ },
+ {
+ "part": "0",
+ "rectangles": "4103, 5418, 573, 239"
+ },
+ {
+ "part": "0",
+ "rectangles": "1951, 5418, 627, 239"
+ },
+ {
+ "part": "0",
+ "rectangles": "4934, 1658, 1586, 559"
+ }
+ ]
+ }
+*/
+public struct SearchResults: Codable
+{
+    public var searchString: String?
+    public var highlightAll: String?
+    public var searchResultSelection: Array<PartAndRectangles>?
+}
 
+public struct PartAndRectangles: Codable
+{
+    public var part: String?
+    public var rectangles: String?
+    
+    public var rectsAsCGRects: [CGRect]? {
+        return decodeRects(self.rectangles)
+    }
 }
