@@ -119,6 +119,71 @@ public class LOKitThread
     }
 }
 
+
+open class CachedRender
+{
+    open let canvasSize: CGSize
+    open let tileRect: CGRect
+    open let image: UIImage
+    
+    public init(canvasSize: CGSize, tileRect: CGRect, image: UIImage)
+    {
+        self.canvasSize = canvasSize
+        self.tileRect = tileRect
+        self.image = image
+    }
+}
+
+class RenderCache
+{
+    let CACHE_LOWMEM = 4
+    let CACHE_NORMAL = 20
+    
+    var cachedRenders: [CachedRender] = []
+    var hasReceivedMemoryWarning = false
+    
+    let lock = NSRecursiveLock()
+    
+    func emptyCache()
+    {
+        lock.lock(); defer { lock.unlock() }
+        
+        cachedRenders.removeAll()
+
+    }
+    
+    func pruneCache()
+    {
+        lock.lock(); defer { lock.unlock() }
+        
+        let max = hasReceivedMemoryWarning ? CACHE_LOWMEM : CACHE_NORMAL
+        while cachedRenders.count > max
+        {
+            cachedRenders.remove(at: 0)
+        }
+    }
+    
+    func add(cachedRender: CachedRender)
+    {
+        lock.lock(); defer { lock.unlock() }
+        
+        cachedRenders.append(cachedRender)
+        pruneCache()
+    }
+    
+    func get(canvasSize: CGSize, tileRect: CGRect) -> UIImage?
+    {
+        lock.lock(); defer { lock.unlock() }
+        
+        if let cr = cachedRenders.first(where: { $0.canvasSize == canvasSize && $0.tileRect == tileRect })
+        {
+            return cr.image
+        }
+        return nil
+    }
+
+}
+
 /**
  * Holds the document object so to enforce access in a thread safe way.
  */
@@ -128,6 +193,8 @@ public class DocumentHolder
 
     public weak var delegate: DocumentUIDelegate? = nil
     public weak var searchDelegate: SearchDelegate? = nil
+    
+    private let cache = RenderCache()
 
     init(doc: Document)
     {
@@ -156,6 +223,27 @@ public class DocumentHolder
             return closure(self.doc)
         }
     }
+    
+    /// Paints a tile and return synchronously, using a cached version if it can
+    public func paintTileToImage(canvasSize: CGSize,
+                                 tileRect: CGRect) -> UIImage?
+    {
+        if let cached = cache.get(canvasSize: canvasSize, tileRect: tileRect)
+        {
+            return cached
+        }
+        
+        let img = sync {
+            $0.paintTileToImage(canvasSize: canvasSize, tileRect: tileRect)
+        }
+        if let image = img
+        {
+            cache.add(cachedRender: CachedRender(canvasSize: canvasSize, tileRect: tileRect, image: image))
+        }
+        
+        return img
+    }
+    
 
     private func onDocumentEvent(type: LibreOfficeKitCallbackType, payload: String?)
     {
@@ -234,10 +322,10 @@ public class DocumentHolder
         var rootJson = JSONObject()
 
         addProperty(&rootJson, "SearchItem.SearchString", "string", searchString);
-        addProperty(&rootJson, "SearchItem.Backward", "boolean", String(forwardDirection) );
+        addProperty(&rootJson, "SearchItem.Backward", "boolean", String(!forwardDirection) );
         addProperty(&rootJson, "SearchItem.SearchStartPointX", "long", String(describing: from.x) );
         addProperty(&rootJson, "SearchItem.SearchStartPointY", "long", String(describing: from.y) );
-        addProperty(&rootJson, "SearchItem.Command", "long", "1") // String.valueOf(0)); // search all == 1
+        addProperty(&rootJson, "SearchItem.Command", "long", "0") // String.valueOf(0)); // search all == 1
 
         if let jsonStr = encode(json: rootJson)
         {

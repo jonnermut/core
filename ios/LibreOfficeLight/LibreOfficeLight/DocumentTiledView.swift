@@ -18,21 +18,7 @@ class DocumentTiledLayer : CATiledLayer
     }
 }
 
-open class CachedRender
-{
-    open let x: CGFloat
-    open let y: CGFloat
-    open let scale: CGFloat
-    open let image: CGImage
 
-    public init(x: CGFloat, y: CGFloat, scale: CGFloat, image: CGImage)
-    {
-        self.x = x
-        self.y = y
-        self.scale = scale
-        self.image = image
-    }
-}
 
 
 public class DocumentTiledView: UIView
@@ -47,7 +33,7 @@ public class DocumentTiledView: UIView
 
     var drawCount = 0
 
-    let drawLock = NSLock()
+    
 
     // Create a new view with the desired frame and scale.
     public init(frame: CGRect, document: DocumentHolder, scale: CGFloat)
@@ -141,9 +127,6 @@ public class DocumentTiledView: UIView
         let box: CGRect = context.boundingBoxOfClipPath
         let ctm: CGAffineTransform = context.ctm
 
-        drawLock.lock()
-        defer { drawLock.unlock() }
-
         drawCount += 1
         let filename = "tile\(drawCount).png"
 
@@ -173,9 +156,8 @@ public class DocumentTiledView: UIView
 
         // we have to do the call synchronously, as the tile has to be painted now, on the current thread
         // TODO - cache the image, and check the cache before we do the sync call
-        let image = document.sync {
-            $0.paintTileToImage(canvasSize: canvasSize, tileRect: pageRect)
-        }
+        let image = document.paintTileToImage(canvasSize: canvasSize, tileRect: pageRect)
+        
 
         if let img = image
         {
@@ -200,23 +182,6 @@ public class DocumentTiledView: UIView
 
     }
 
-
-
-    /*
-    fileprivate func emptyCache()
-    {
-        cachedRenders.removeAll()
-    }
-
-    fileprivate func pruneCache()
-    {
-        let max = hasReceivedMemoryWarning ? CACHE_LOWMEM : CACHE_NORMAL
-        while cachedRenders.count > max
-        {
-            cachedRenders.popFirst()
-        }
-    }
- */
 
     deinit
     {

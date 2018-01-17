@@ -31,6 +31,11 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
     @IBOutlet weak var progressBar: UIProgressView!
     @IBOutlet weak var searchBar: UISearchBar!
 
+    deinit
+    {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     // called once controller is loaded
     override func viewDidLoad()
     {
@@ -46,9 +51,16 @@ class DocumentController: UIViewController, MenuDelegate, UIDocumentBrowserViewC
         }
         LOKitThread.instance.progressDelegate = self
     }
+    
+    override func viewWillAppear(_ animated: Bool)
+    {
+        super.viewWillAppear(animated)
+        registerKeyboardNotifications()
+    }
 
     override func viewDidAppear(_ animated: Bool)
     {
+        super.viewDidAppear(animated)
         let res = Bundle.main.url(forResource: "example", withExtension: "odt")
         //let res = Bundle.main.url(forResource: "example2", withExtension: "docx")
 
@@ -514,5 +526,42 @@ extension DocumentController: SearchDelegate
     func searchResultSelection(searchResults: SearchResults)
     {
         self.documentOverlaysView?.setSearchResults(searchResults: searchResults)
+    }
+}
+
+/// Keyboard notifications
+extension DocumentController
+{
+    
+    func registerKeyboardNotifications()
+    {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardWillShow(notification:)),
+                                               name: NSNotification.Name.UIKeyboardWillShow,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardWillHide(notification:)),
+                                               name: NSNotification.Name.UIKeyboardWillHide,
+                                               object: nil)
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification)
+    {
+        
+        let userInfo: NSDictionary = notification.userInfo! as NSDictionary
+        guard let keyboardInfo = userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue else { return }
+        print(userInfo)
+        let keyboardSize = keyboardInfo.cgRectValue.size
+        print("keyboardWillShow \(keyboardSize)")
+        let contentInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
+        scrollView.contentInset = contentInsets
+        scrollView.scrollIndicatorInsets = contentInsets
+    }
+    
+    @objc func keyboardWillHide(notification: NSNotification)
+    {
+        print("keyboardWillHide")
+        scrollView.contentInset = .zero
+        scrollView.scrollIndicatorInsets = .zero
     }
 }

@@ -11,7 +11,7 @@ import UIKit
 public class DocumentOverlaysView: UIView
 {
     var searchSubViews: [UIView] = []
-    var documentTiledView: DocumentTiledView
+    weak var documentTiledView: DocumentTiledView? = nil
 
     public init(docTiledView: DocumentTiledView)
     {
@@ -38,6 +38,9 @@ public class DocumentOverlaysView: UIView
     public func setSearchResults(searchResults: SearchResults)
     {
         clearSearchResults()
+        
+        guard let documentTiledView = self.documentTiledView else { return }
+        
         if let srs = searchResults.searchResultSelection
         {
             let allTheRects = srs.flatMap { $0.rectsAsCGRects }
@@ -51,6 +54,14 @@ public class DocumentOverlaysView: UIView
                 subView.layer.compositingFilter = "multiplyBlendMode"
                 self.addSubview(subView)
                 searchSubViews.append(subView)
+            }
+            
+            if let first = allTheRects.first
+            {
+                if let scrollView = self.superview?.superview as? UIScrollView
+                {
+                    scrollView.scrollRectToVisible(first, animated: true)
+                }
             }
         }
     }
