@@ -8,6 +8,7 @@
  */
 
 #include <array>
+#include <vector>
 #include <unordered_map>
 
 struct XXX {
@@ -110,6 +111,28 @@ class Foo9 {
         }
         if (m_pbar3 != nullptr)
             delete m_pbar3; // expected-error {{unconditional call to delete on a member, should be using std::unique_ptr [loplugin:useuniqueptr]}}
+    }
+};
+// no warning expected
+class Foo10 {
+    XXX* m_pbar1;
+    ~Foo10()
+    {
+        if (m_pbar1 != getOther())
+        {
+            delete m_pbar1;
+        }
+    }
+    XXX* getOther() { return nullptr; }
+};
+class Foo11 {
+    std::vector<XXX*> m_pbar1; // expected-note {{member is here [loplugin:useuniqueptr]}}
+    ~Foo11()
+    {
+        for (const auto & p : m_pbar1)
+        {
+            delete p; // expected-error {{rather manage with std::some_container<std::unique_ptr<T>> [loplugin:useuniqueptr]}}
+        }
     }
 };
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

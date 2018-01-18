@@ -22,6 +22,7 @@
 #include <sal/log.hxx>
 #include <sal/macros.h>
 
+#include <algorithm>
 #include <cassert>
 #include <string.h>
 #include <stdio.h>
@@ -137,7 +138,7 @@ void * rtl_reallocateMemory_CUSTOM (void * p, sal_Size n) SAL_THROW_EXTERN_C()
             p = rtl_allocateMemory (n);
             if (p)
             {
-                memcpy (p, p_old, (n < n_old) ? n : n_old);
+                memcpy (p, p_old, std::min(n, n_old));
                 rtl_freeMemory (p_old);
             }
         }

@@ -495,8 +495,7 @@ void SfxChildWindow::CreateContext( sal_uInt16 nContextId, SfxBindings& rBinding
         return;
     }
 
-    if ( pContext )
-        delete( pContext );
+    delete pContext;
     pContext = pCon;
     pContext->GetWindow()->SetSizePixel( pWindow->GetOutputSizePixel() );
     pContext->GetWindow()->Show();
@@ -581,7 +580,7 @@ bool SfxChildWinInfo::GetExtraData_Impl
     if ( aStr.isEmpty() )
         return false;
     if ( pAlign )
-        *pAlign = (SfxChildAlignment) static_cast<sal_uInt16>(aStr.toInt32());
+        *pAlign = static_cast<SfxChildAlignment>(static_cast<sal_uInt16>(aStr.toInt32()));
 
     // then the LastAlignment
     nPos = aStr.indexOf(',');

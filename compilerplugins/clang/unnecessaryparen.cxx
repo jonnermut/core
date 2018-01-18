@@ -93,6 +93,7 @@ public:
     bool VisitConditionalOperator(ConditionalOperator const * expr);
     bool VisitBinaryConditionalOperator(BinaryConditionalOperator const * expr);
     bool VisitMemberExpr(const MemberExpr *f);
+    bool VisitCXXDeleteExpr(const CXXDeleteExpr *);
 private:
     void VisitSomeStmt(Stmt const * stmt, const Expr* cond, StringRef stmtName);
 
@@ -339,6 +340,28 @@ bool UnnecessaryParen::VisitCallExpr(const CallExpr* callExpr)
     return true;
 }
 
+bool UnnecessaryParen::VisitCXXDeleteExpr(const CXXDeleteExpr* deleteExpr)
+{
+    if (ignoreLocation(deleteExpr))
+        return true;
+
+    auto parenExpr = dyn_cast<ParenExpr>(ignoreAllImplicit(deleteExpr->getArgument()));
+    if (!parenExpr)
+        return true;
+    if (parenExpr->getLocStart().isMacroID())
+        return true;
+    // assignments need extra parentheses or they generate a compiler warning
+    auto binaryOp = dyn_cast<BinaryOperator>(parenExpr->getSubExpr());
+    if (binaryOp && binaryOp->getOpcode() == BO_Assign)
+        return true;
+    report(
+        DiagnosticsEngine::Warning, "parentheses immediately inside delete expr",
+        parenExpr->getLocStart())
+        << parenExpr->getSourceRange();
+    handled_.insert(parenExpr);
+    return true;
+}
+
 bool UnnecessaryParen::VisitCXXOperatorCallExpr(const CXXOperatorCallExpr* callExpr)
 {
     if (ignoreLocation(callExpr))
@@ -489,12 +512,12 @@ bool badCombinationChar(char c) {
 }
 
 bool UnnecessaryParen::badCombination(SourceLocation loc, int prevOffset, int nextOffset) {
-    //TODO: check for start/end of file; take backslash-newline line concatentation into account
+    //TODO: check for start/end of file; take backslash-newline line concatenation into account
     auto const c1
         = compiler.getSourceManager().getCharacterData(loc.getLocWithOffset(prevOffset))[0];
     auto const c2
         = compiler.getSourceManager().getCharacterData(loc.getLocWithOffset(nextOffset))[0];
-    // An approximation of avoiding whatever combinations that would cause two ajacent tokens to be
+    // An approximation of avoiding whatever combinations that would cause two adjacent tokens to be
     // lexed differently, using, for now, letters (TODO: non-ASCII ones) and digits and '_'; '+' and
     // '-' (to avoid ++, etc.); '\'' and '"' (to avoid u'x' or "foo"bar, etc.):
     return badCombinationChar(c1) && badCombinationChar(c2);

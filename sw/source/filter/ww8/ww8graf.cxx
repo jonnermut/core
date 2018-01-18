@@ -1584,7 +1584,7 @@ sal_Int32 SwWW8ImplReader::MatchSdrBoxIntoFlyBoxItem(const Color& rLineColor,
         nIdx = SvxBorderLineStyle::DOUBLE;
     break;
     // no line style is set
-    case (MSO_LineStyle)USHRT_MAX:
+    case MSO_LineStyle(USHRT_MAX):
         break;
     // erroneously not implemented line style is set
     default:
@@ -2607,7 +2607,13 @@ SwFrameFormat* SwWW8ImplReader::Read_GrafLayer( long nGrafAnchorCp )
 
     OSL_ENSURE(pRecord, "how did that happen?");
     if (!pRecord)
+    {
+        // remove old object from the Z-Order list
+        m_xMSDffManager->RemoveFromShapeOrder(pObject);
+        // and delete the object
+        SdrObject::Free(pObject);
         return nullptr;
+    }
 
     const bool bLayoutInTableCell =
         m_nInTable && IsObjectLayoutInTableCell( pRecord->nLayoutInTableCell );

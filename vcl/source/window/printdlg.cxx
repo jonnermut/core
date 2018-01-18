@@ -464,7 +464,7 @@ void PrintDialog::NUpTabPage::initFromMultiPageSetup( const vcl::PrinterControll
     mpBorderCB->Check( i_rMPS.bDrawBorder );
     mpNupRowsEdt->SetValue( i_rMPS.nRows );
     mpNupColEdt->SetValue( i_rMPS.nColumns );
-    mpNupOrderBox->SelectEntryPos( (sal_Int32)i_rMPS.nOrder );
+    mpNupOrderBox->SelectEntryPos( static_cast<sal_Int32>(i_rMPS.nOrder) );
     if( i_rMPS.nRows != 1 || i_rMPS.nColumns != 1 )
     {
         mpNupPagesBox->SelectEntryPos( mpNupPagesBox->GetEntryCount()-1 );
@@ -1435,7 +1435,7 @@ void PrintDialog::updateNupFromPages()
 
         maNUpPage.mpSheetMarginEdt->SetMax(
                   maNUpPage.mpSheetMarginEdt->Normalize(
-                           nHorzMax > nVertMax ? nVertMax : nHorzMax ), FUNIT_100TH_MM );
+                           std::min(nHorzMax, nVertMax) ), FUNIT_100TH_MM );
 
         // maximum page distance
         nHorzMax = (aSize.Width() - 2*nSheetMargin);
@@ -1452,7 +1452,7 @@ void PrintDialog::updateNupFromPages()
 
         maNUpPage.mpPageMarginEdt->SetMax(
                  maNUpPage.mpSheetMarginEdt->Normalize(
-                           nHorzMax > nVertMax ? nVertMax : nHorzMax ), FUNIT_100TH_MM );
+                           std::min(nHorzMax, nVertMax ) ), FUNIT_100TH_MM );
     }
 
     maNUpPage.mpNupRowsEdt->SetValue( nRows );
@@ -1488,7 +1488,7 @@ void PrintDialog::updateNup()
 
     aMPS.bDrawBorder        = maNUpPage.mpBorderCB->IsChecked();
 
-    aMPS.nOrder = (NupOrderType)maNUpPage.mpNupOrderBox->GetSelectedEntryPos();
+    aMPS.nOrder = static_cast<NupOrderType>(maNUpPage.mpNupOrderBox->GetSelectedEntryPos());
 
     int nOrientationMode = maNUpPage.mpNupOrientationBox->GetSelectedEntryPos();
     if( nOrientationMode == SV_PRINT_PRT_NUP_ORIENTATION_LANDSCAPE )

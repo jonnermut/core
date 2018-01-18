@@ -50,7 +50,6 @@
 #include "main.hxx"
 #include "outact.hxx"
 
-
 using namespace ::com::sun::star;
 
 CGMImpressOutAct::CGMImpressOutAct(CGM& rCGM, const uno::Reference< frame::XModel > & rModel)
@@ -86,6 +85,8 @@ CGMImpressOutAct::CGMImpressOutAct(CGM& rCGM, const uno::Reference< frame::XMode
 
 CGMImpressOutAct::~CGMImpressOutAct()
 {
+    for (auto &a : maLockedNewXShapes)
+        a->removeActionLock();
 }
 
 bool CGMImpressOutAct::ImplInitPage()
@@ -111,6 +112,12 @@ bool CGMImpressOutAct::ImplCreateShape( const OUString& rType )
     if ( maXShape.is() && maXPropSet.is() )
     {
         maXShapes->add( maXShape );
+        uno::Reference<document::XActionLockable> xLockable(maXShape, uno::UNO_QUERY);
+        if (xLockable)
+        {
+            xLockable->addActionLock();
+            maLockedNewXShapes.push_back(xLockable);
+        }
         return true;
     }
     return false;
@@ -655,7 +662,7 @@ void CGMImpressOutAct::DrawPolybezier( tools::Polygon& rPolygon )
         for( sal_uInt16 i = 0; i < nPoints; i++ )
         {
             *pInnerSequence++ = awt::Point( rPolygon[ i ].X(), rPolygon[ i ].Y() );
-            *pInnerFlags++ = (drawing::PolygonFlags)rPolygon.GetFlags( i );
+            *pInnerFlags++ = static_cast<drawing::PolygonFlags>(rPolygon.GetFlags( i ));
         }
         uno::Any aParam;
         aParam <<= aRetval;
@@ -695,7 +702,7 @@ void CGMImpressOutAct::DrawPolyPolygon( tools::PolyPolygon const & rPolyPolygon 
             for( sal_uInt32 b = 0; b < nNumPoints; b++ )
             {
                 *pInnerSequence++ = awt::Point( aPolygon.GetPoint( b ).X(), aPolygon.GetPoint( b ).Y() ) ;
-                *pInnerFlags++ = (drawing::PolygonFlags)aPolygon.GetFlags( b );
+                *pInnerFlags++ = static_cast<drawing::PolygonFlags>(aPolygon.GetFlags( b ));
             }
             pOuterSequence++;
             pOuterFlags++;
@@ -797,7 +804,7 @@ void CGMImpressOutAct::DrawText( awt::Point const & rTextPos, awt::Size const & 
         uno::Any aFirstQuery( maXShape->queryInterface( cppu::UnoType<text::XText>::get()));
         if( aFirstQuery >>= xText )
         {
-            OUString aStr(pString, rtl_str_getLength(pString), RTL_TEXTENCODING_ASCII_US);
+            OUString aStr(pString, strlen(pString), RTL_TEXTENCODING_ASCII_US);
 
             uno::Reference< text::XTextCursor >  aXTextCursor( xText->createTextCursor() );
             {
@@ -816,15 +823,15 @@ void CGMImpressOutAct::DrawText( awt::Point const & rTextPos, awt::Size const & 
                             switch ( mpCGM->pElement->eTextAlignmentH )
                             {
                                 case TAH_RIGHT :
-                                    aAny <<= (sal_Int16)style::HorizontalAlignment_RIGHT;
+                                    aAny <<= sal_Int16(style::HorizontalAlignment_RIGHT);
                                 break;
                                 case TAH_LEFT :
                                 case TAH_CONT :
                                 case TAH_NORMAL :
-                                    aAny <<= (sal_Int16)style::HorizontalAlignment_LEFT;
+                                    aAny <<= sal_Int16(style::HorizontalAlignment_LEFT);
                                 break;
                                 case TAH_CENTER :
-                                    aAny <<= (sal_Int16)style::HorizontalAlignment_CENTER;
+                                    aAny <<= sal_Int16(style::HorizontalAlignment_CENTER);
                                 break;
                             }
                             aCursorPropSet->setPropertyValue( "ParaAdjust", aAny );

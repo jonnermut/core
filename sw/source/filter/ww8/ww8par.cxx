@@ -692,7 +692,7 @@ SdrObject* SwMSDffManager::ProcessObj(SvStream& rSt,
             bool bVerticalText = false;
             if ( IsProperty( DFF_Prop_txflTextFlow ) )
             {
-                MSO_TextFlow eTextFlow = (MSO_TextFlow)(GetPropertyValue(
+                MSO_TextFlow eTextFlow = static_cast<MSO_TextFlow>(GetPropertyValue(
                     DFF_Prop_txflTextFlow, 0) & 0xFFFF);
                 switch( eTextFlow )
                 {
@@ -797,8 +797,7 @@ SdrObject* SwMSDffManager::ProcessObj(SvStream& rSt,
                 aSet.Put( makeSdrTextAutoGrowWidthItem( false ) );
             }
 
-            switch ( (MSO_WrapMode)
-                GetPropertyValue( DFF_Prop_WrapText, mso_wrapSquare ) )
+            switch ( static_cast<MSO_WrapMode>(GetPropertyValue( DFF_Prop_WrapText, mso_wrapSquare )) )
             {
                 case mso_wrapNone :
                     aSet.Put( makeSdrTextAutoGrowWidthItem( true ) );
@@ -1037,12 +1036,12 @@ SdrObject* SwMSDffManager::ProcessObj(SvStream& rSt,
         }
 
         pImpRec->eLineStyle = (nLineFlags & 8)
-                              ? (MSO_LineStyle)GetPropertyValue(
+                              ? static_cast<MSO_LineStyle>(GetPropertyValue(
                                                     DFF_Prop_lineStyle,
-                                                    mso_lineSimple )
-                              : (MSO_LineStyle)USHRT_MAX;
-        pImpRec->eLineDashing = (MSO_LineDashing)GetPropertyValue(
-                                        DFF_Prop_lineDashing, mso_lineSolid );
+                                                    mso_lineSimple ))
+                              : MSO_LineStyle(USHRT_MAX);
+        pImpRec->eLineDashing = static_cast<MSO_LineDashing>(GetPropertyValue(
+                                        DFF_Prop_lineDashing, mso_lineSolid ));
 
         pImpRec->nFlags = rObjData.nSpFlags;
 
@@ -1948,7 +1947,7 @@ void SwWW8ImplReader::ImportDopTypography(const WW8DopTypography &rTypo)
     }
 
     m_rDoc.getIDocumentSettingAccess().set(DocumentSettingId::KERN_ASIAN_PUNCTUATION, rTypo.fKerningPunct);
-    m_rDoc.getIDocumentSettingAccess().setCharacterCompressionType((CharCompressType)rTypo.iJustification);
+    m_rDoc.getIDocumentSettingAccess().setCharacterCompressionType(static_cast<CharCompressType>(rTypo.iJustification));
 }
 
 /**
@@ -5478,7 +5477,7 @@ namespace
         sal_uInt8 in[WW_BLOCKSIZE];
         for (std::size_t nI = 0, nBlock = 0; nI < nLen; nI += WW_BLOCKSIZE, ++nBlock)
         {
-            std::size_t nBS = (nLen - nI > WW_BLOCKSIZE) ? WW_BLOCKSIZE : nLen - nI;
+            std::size_t nBS = std::min<size_t>(nLen - nI, WW_BLOCKSIZE);
             nBS = rIn.ReadBytes(in, nBS);
             rCtx.InitCipher(nBlock);
             rCtx.Decode(in, nBS, in, nBS);
@@ -5499,7 +5498,7 @@ namespace
         sal_uInt8 in[0x4096];
         for (std::size_t nI = nSt; nI < nLen; nI += 0x4096)
         {
-            std::size_t nBS = (nLen - nI > 0x4096 ) ? 0x4096 : nLen - nI;
+            std::size_t nBS = std::min<size_t>(nLen - nI, 0x4096 );
             nBS = rIn.ReadBytes(in, nBS);
             rCtx.Decode(in, nBS);
             rOut.WriteBytes(in, nBS);

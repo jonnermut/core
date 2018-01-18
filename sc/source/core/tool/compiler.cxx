@@ -2903,7 +2903,7 @@ bool ScCompiler::IsOpCode2( const OUString& rName )
 
     if (bFound)
     {
-        maRawToken.SetOpCode( (OpCode) --i );
+        maRawToken.SetOpCode( static_cast<OpCode>(--i) );
     }
     return bFound;
 }
@@ -4111,7 +4111,7 @@ bool ScCompiler::NextNewToken( bool bInArray )
     {
         ScRawToken aToken;
         aToken.SetOpCode( ocSpaces );
-        aToken.sbyte.cByte = static_cast<sal_uInt8>( nSpaces > 255 ? 255 : nSpaces );
+        aToken.sbyte.cByte = static_cast<sal_uInt8>( std::min<sal_Int32>(nSpaces, 255) );
         if( !static_cast<ScTokenArray*>(pArr)->AddRawToken( aToken ) )
         {
             SetError(FormulaError::CodeOverflow);

@@ -94,13 +94,17 @@ struct ImplWinData
                         mpExtOldText;
     std::unique_ptr<ExtTextInputAttr[]>
                         mpExtOldAttrAry;
-    tools::Rectangle*   mpCursorRect;
+    std::unique_ptr<tools::Rectangle>
+                        mpCursorRect;
     long                mnCursorExtWidth;
     bool                mbVertical;
-    tools::Rectangle*   mpCompositionCharRects;
+    std::unique_ptr<tools::Rectangle[]>
+                        mpCompositionCharRects;
     long                mnCompositionCharRects;
-    tools::Rectangle*   mpFocusRect;
-    tools::Rectangle*   mpTrackRect;
+    std::unique_ptr<tools::Rectangle>
+                        mpFocusRect;
+    std::unique_ptr<tools::Rectangle>
+                        mpTrackRect;
     ShowTrackFlags      mnTrackFlags;
     sal_uInt16          mnIsTopWindow;
     bool                mbMouseOver;            //< tracks mouse over for native widget paint effect
@@ -266,12 +270,12 @@ public:
     css::uno::Reference< css::accessibility::XAccessible > mxAccessible;
     std::shared_ptr< VclSizeGroup > m_xSizeGroup;
     std::vector< VclPtr<FixedText> > m_aMnemonicLabels;
-    ImplAccessibleInfos* mpAccessibleInfos;
+    std::unique_ptr<ImplAccessibleInfos> mpAccessibleInfos;
     VCLXWindow*         mpVCLXWindow;
     vcl::Region              maWinRegion;            //< region to 'shape' the VCL window (frame coordinates)
     vcl::Region              maWinClipRegion;        //< the (clipping) region that finally corresponds to the VCL window (frame coordinates)
     vcl::Region              maInvalidateRegion;     //< region that has to be redrawn (frame coordinates)
-    vcl::Region*             mpChildClipRegion;      //< child clip region if CLIPCHILDREN is set (frame coordinates)
+    std::unique_ptr<vcl::Region> mpChildClipRegion;  //< child clip region if CLIPCHILDREN is set (frame coordinates)
     vcl::Region*             mpPaintRegion;          //< only set during Paint() method call (window coordinates)
     WinBits             mnStyle;
     WinBits             mnPrevStyle;

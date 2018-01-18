@@ -58,6 +58,10 @@
  *  For LWP filter architecture prototype - table object
  */
 
+#include <sal/config.h>
+
+#include <algorithm>
+
  #include "lwptable.hxx"
 
  LwpSuperTable::LwpSuperTable(LwpObjectHeader const &objHdr, LwpSvStream* pStrm):LwpContent(objHdr, pStrm)
@@ -205,7 +209,7 @@ void LwpGlossary::Read()
     {
         if (NumIndexRows)
         {
-            sal_uInt16 EntriesRead = (FiledEntries > NumIndexRows)? NumIndexRows:FiledEntries;
+            sal_uInt16 EntriesRead = std::min(FiledEntries, NumIndexRows);
 
             for (sal_uInt16 EntryCount = 1; EntryCount <= EntriesRead; EntryCount++)
                 m_pObjStrm->QuickReaduInt16();

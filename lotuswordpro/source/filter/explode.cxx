@@ -56,6 +56,8 @@
 
 #include "explode.hxx"
 #include <tools/stream.hxx>
+
+#include <algorithm>
 #include <assert.h>
 #include <math.h>
 
@@ -311,11 +313,11 @@ sal_Int32 Decompression::explode()
         // point back to copy position and read bytes
         m_pOutStream->SeekRel(-static_cast<long>(distance));
         sal_uInt8 sTemp[MAXWIN];
-        sal_uInt32 nRead = distance > Length? Length:distance;
+        sal_uInt32 nRead = std::min(distance, Length);
         m_pOutStream->ReadBytes(sTemp, nRead);
         if (nRead != Length)
         {
-            // fill the buffer with read content repeatly until full
+            // fill the buffer with read content repeatedly until full
             for (sal_uInt32 i=nRead; i<Length; i++)
             {
                 sTemp[i] = sTemp[i-nRead];

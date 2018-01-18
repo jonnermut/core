@@ -107,7 +107,7 @@ void CGM::ImplDoClass4()
     if ( mbFirstOutPut )
         mpOutAct->FirstOutPut();
 
-    if ( mpBitmapInUse && ( mnElementID != 9 ) )    // process existend graphic
+    if ( mpBitmapInUse && ( mnElementID != 9 ) )    // process existed graphic
     {                                               // because there are now no pending bitmap actions
         CGMBitmapDescriptor* pBmpDesc = mpBitmapInUse->GetBitmap();
         // do anything with the bitmap
@@ -193,7 +193,7 @@ void CGM::ImplDoClass4()
                 awt::Size aSize;
                 awt::Point aPoint( static_cast<long>(aFloatPoint.X), static_cast<long>(aFloatPoint.Y) );
                 mpOutAct->DrawText( aPoint, aSize,
-                                reinterpret_cast<char*>(mpSource) + mnParaSize, (FinalFlag)nType );
+                                reinterpret_cast<char*>(mpSource) + mnParaSize, static_cast<FinalFlag>(nType) );
                 mnParaSize = mnElementSize;
             }
             break;
@@ -231,7 +231,7 @@ void CGM::ImplDoClass4()
                 awt::Point aPoint( static_cast<long>(aFloatPoint.X), static_cast<long>(aFloatPoint.Y) );
                 awt::Size aSize(static_cast<long>(dx), static_cast<long>(dy));
                 mpOutAct->DrawText( aPoint, aSize ,
-                                reinterpret_cast<char*>(mpSource) + mnParaSize, (FinalFlag)nType );
+                                reinterpret_cast<char*>(mpSource) + mnParaSize, static_cast<FinalFlag>(nType) );
                 mnParaSize = mnElementSize;
             }
             break;

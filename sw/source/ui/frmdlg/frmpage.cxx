@@ -980,7 +980,7 @@ void SwFramePage::Reset( const SfxItemSet *rSet )
     m_pRelWidthRelationLB->InsertEntry(SvxSwFramePosString::GetString(SwFPos::REL_PG_FRAME));
     if (rFrameSize.GetWidthPercent() != SwFormatFrameSize::SYNCED && rFrameSize.GetWidthPercent() != 0)
     {
-        //calculate the rerference value from the with and relative width values
+        //calculate the reference value from the with and relative width values
         sal_Int32 nSpace = rFrameSize.GetWidth() * 100 / rFrameSize.GetWidthPercent();
         m_aWidthED.SetRefValue( nSpace );
 
@@ -993,7 +993,7 @@ void SwFramePage::Reset( const SfxItemSet *rSet )
     m_pRelHeightRelationLB->InsertEntry(SvxSwFramePosString::GetString(SwFPos::REL_PG_FRAME));
     if (rFrameSize.GetHeightPercent() != SwFormatFrameSize::SYNCED && rFrameSize.GetHeightPercent() != 0)
     {
-        //calculate the rerference value from the with and relative width values
+        //calculate the reference value from the with and relative width values
         sal_Int32 nSpace = rFrameSize.GetHeight() * 100 / rFrameSize.GetHeightPercent();
         m_aHeightED.SetRefValue( nSpace );
 
@@ -1537,11 +1537,11 @@ void SwFramePage::FillRelLB( const FrameMap* _pMap,
 
             for (sal_uLong nBit = 1; nBit < 0x80000000; nBit <<= 1)
             {
-                if (nLBRelations & (LB)nBit)
+                if (nLBRelations & static_cast<LB>(nBit))
                 {
                     for (RelationMap & rMap : aRelationMap)
                     {
-                        if (rMap.nLBRelation == (LB)nBit)
+                        if (rMap.nLBRelation == static_cast<LB>(nBit))
                         {
                             SvxSwFramePosString::StringId eStrId1 = m_pMirrorPagesCB->IsChecked() ?
                                             rMap.eMirrorStrId : rMap.eStrId;

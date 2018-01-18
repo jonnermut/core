@@ -103,7 +103,7 @@ NumSettings_Impl* lcl_CreateNumberingSettingsPtr(const Sequence<PropertyValue>& 
         {
             sal_Int16 nTmp;
             if (pValues[j].Value >>= nTmp)
-                pNew->nNumberType = (SvxNumType)nTmp;
+                pNew->nNumberType = static_cast<SvxNumType>(nTmp);
         }
         else if(pValues[j].Name == "Prefix")
             pValues[j].Value >>= pNew->sPrefix;
@@ -735,7 +735,7 @@ void OutlineTypeMgr::RelplaceNumRule(SvxNumRule& aNum, sal_uInt16 nIndex, sal_uI
             pItemArr->bIsCustomized = true;
         }else if ((eNumType&(~LINK_TOKEN)) == SVX_NUM_BITMAP ) {
             if (_pSet->pBrushItem) {
-                delete (_pSet->pBrushItem);
+                delete _pSet->pBrushItem;
                 _pSet->pBrushItem=nullptr;
             }
             if (aFmt.GetBrush())

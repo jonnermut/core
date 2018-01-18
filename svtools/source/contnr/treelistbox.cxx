@@ -1224,7 +1224,7 @@ nAction
 
 DragDropMode SvTreeListBox::NotifyStartDrag( TransferDataContainer&, SvTreeListEntry* )
 {
-    return (DragDropMode)0xffff;
+    return DragDropMode(0xffff);
 }
 
 bool SvTreeListBox::NotifyAcceptDrop( SvTreeListEntry* )
@@ -1434,7 +1434,7 @@ void SvTreeListBox::SetSublistOpenWithLeftRight()
     pImpl->bSubLstOpLR = true;
 }
 
-void SvTreeListBox::SetSublistNotOpenWithDoubleClick()
+void SvTreeListBox::SetSublistDontOpenWithDoubleClick()
 {
     pImpl->bSubLstOpDblClick = false;
 }

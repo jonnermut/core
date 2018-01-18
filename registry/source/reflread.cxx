@@ -22,6 +22,7 @@
 #include <cstring>
 #include <memory>
 #include <new>
+#include <vector>
 
 #include <string.h>
 #include <sal/types.h>
@@ -185,60 +186,38 @@ BlopObject::~BlopObject()
 class StringCache
 {
 public:
-    sal_Unicode**   m_stringTable;
-    sal_uInt16      m_numOfStrings;
+    std::vector<std::unique_ptr<sal_Unicode[]>> m_stringTable;
     sal_uInt16      m_stringsCopied;
 
     explicit StringCache(sal_uInt16 size); // throws std::bad_alloc
-    ~StringCache();
 
     const sal_Unicode*  getString(sal_uInt16 index) const;
     sal_uInt16 createString(const sal_uInt8* buffer); // throws std::bad_alloc
 };
 
 StringCache::StringCache(sal_uInt16 size)
-    : m_stringTable(nullptr)
-    , m_numOfStrings(size)
+    : m_stringTable(size)
     , m_stringsCopied(0)
 {
-    m_stringTable = new sal_Unicode*[m_numOfStrings];
-
-    for (sal_uInt16 i = 0; i < m_numOfStrings; i++)
-    {
-        m_stringTable[i] = nullptr;
-    }
-}
-
-StringCache::~StringCache()
-{
-    if (m_stringTable)
-    {
-        for (sal_uInt16 i = 0; i < m_stringsCopied; i++)
-        {
-            delete[] m_stringTable[i];
-        }
-
-        delete[] m_stringTable;
-    }
 }
 
 const sal_Unicode* StringCache::getString(sal_uInt16 index) const
 {
     if ((index > 0) && (index <= m_stringsCopied))
-        return m_stringTable[index - 1];
+        return m_stringTable[index - 1].get();
     else
         return nullptr;
 }
 
 sal_uInt16 StringCache::createString(const sal_uInt8* buffer)
 {
-    if (m_stringsCopied < m_numOfStrings)
+    if (m_stringsCopied < m_stringTable.size())
     {
         sal_uInt32 len = UINT16StringLen(buffer);
 
-        m_stringTable[m_stringsCopied] = new sal_Unicode[len + 1];
+        m_stringTable[m_stringsCopied].reset( new sal_Unicode[len + 1] );
 
-        readString(buffer, m_stringTable[m_stringsCopied], (len + 1) * sizeof(sal_Unicode));
+        readString(buffer, m_stringTable[m_stringsCopied].get(), (len + 1) * sizeof(sal_Unicode));
 
         return ++m_stringsCopied;
     }
@@ -304,7 +283,7 @@ sal_uInt32 ConstantPool::parseIndex()
 
             offset += readUINT32(offset);
 
-            if ( ((CPInfoTag) readUINT16(m_pIndex[i] + CP_OFFSET_ENTRY_TAG)) ==
+            if ( static_cast<CPInfoTag>(readUINT16(m_pIndex[i] + CP_OFFSET_ENTRY_TAG)) ==
                  CP_TAG_CONST_STRING )
             {
                 numOfStrings++;
@@ -329,7 +308,7 @@ CPInfoTag ConstantPool::readTag(sal_uInt16 index) const
 
     if (m_pIndex && (index > 0) && (index <= m_numOfEntries))
     {
-        tag = (CPInfoTag) readUINT16(m_pIndex[index - 1] + CP_OFFSET_ENTRY_TAG);
+        tag = static_cast<CPInfoTag>(readUINT16(m_pIndex[index - 1] + CP_OFFSET_ENTRY_TAG));
     }
 
     return tag;
@@ -644,7 +623,7 @@ RTFieldAccess FieldList::getFieldAccess(sal_uInt16 index) const
     if ((m_numOfEntries > 0) && (index <= m_numOfEntries))
     {
         try {
-            aAccess = (RTFieldAccess) readUINT16(sizeof(sal_uInt16) + (index * m_FIELD_ENTRY_SIZE) + FIELD_OFFSET_ACCESS);
+            aAccess = static_cast<RTFieldAccess>(readUINT16(sizeof(sal_uInt16) + (index * m_FIELD_ENTRY_SIZE) + FIELD_OFFSET_ACCESS));
         } catch (BlopObject::BoundsError &) {
             SAL_WARN("registry", "bad data");
         }
@@ -809,7 +788,7 @@ RTReferenceType ReferenceList::getReferenceType(sal_uInt16 index) const
     if ((m_numOfEntries > 0) && (index <= m_numOfEntries))
     {
         try {
-            refType = (RTReferenceType) readUINT16(sizeof(sal_uInt16) + (index * m_REFERENCE_ENTRY_SIZE) + REFERENCE_OFFSET_TYPE);
+            refType = static_cast<RTReferenceType>(readUINT16(sizeof(sal_uInt16) + (index * m_REFERENCE_ENTRY_SIZE) + REFERENCE_OFFSET_TYPE));
         } catch (BlopObject::BoundsError &) {
             SAL_WARN("registry", "bad data");
         }
@@ -841,7 +820,7 @@ RTFieldAccess ReferenceList::getReferenceAccess(sal_uInt16 index) const
     if ((m_numOfEntries > 0) && (index <= m_numOfEntries))
     {
         try {
-            aAccess = (RTFieldAccess) readUINT16(sizeof(sal_uInt16) + (index * m_REFERENCE_ENTRY_SIZE) + REFERENCE_OFFSET_ACCESS);
+            aAccess = static_cast<RTFieldAccess>(readUINT16(sizeof(sal_uInt16) + (index * m_REFERENCE_ENTRY_SIZE) + REFERENCE_OFFSET_ACCESS));
         } catch (BlopObject::BoundsError &) {
             SAL_WARN("registry", "bad data");
         }
@@ -1007,10 +986,10 @@ RTParamMode MethodList::getMethodParamMode(sal_uInt16 index, sal_uInt16 paramInd
             (index <= m_numOfEntries) &&
             (paramIndex <= readUINT16(m_pIndex[index] + METHOD_OFFSET_PARAM_COUNT)))
         {
-            aMode = (RTParamMode) readUINT16(
+            aMode = static_cast<RTParamMode>(readUINT16(
                 m_pIndex[index] +
                 calcMethodParamIndex(paramIndex) +
-                PARAM_OFFSET_MODE);
+                PARAM_OFFSET_MODE));
         }
     } catch (BlopObject::BoundsError &) {
         SAL_WARN("registry", "bad data");
@@ -1088,7 +1067,7 @@ RTMethodMode MethodList::getMethodMode(sal_uInt16 index) const
     if ((m_numOfEntries > 0) && (index <= m_numOfEntries))
     {
         try {
-            aMode = (RTMethodMode) readUINT16(m_pIndex[index] + METHOD_OFFSET_MODE);
+            aMode = static_cast<RTMethodMode>(readUINT16(m_pIndex[index] + METHOD_OFFSET_MODE));
         } catch (BlopObject::BoundsError &) {
             SAL_WARN("registry", "bad data");
         }
@@ -1279,8 +1258,7 @@ RTTypeClass TYPEREG_CALLTYPE typereg_reader_getTypeClass(void * hEntry)
     TypeRegistryEntry* pEntry = static_cast<TypeRegistryEntry*>(hEntry);
     if (pEntry != nullptr) {
         try {
-            return (RTTypeClass)
-                (pEntry->readUINT16(OFFSET_TYPE_CLASS) & ~RT_TYPE_PUBLISHED);
+            return static_cast<RTTypeClass>(pEntry->readUINT16(OFFSET_TYPE_CLASS) & ~RT_TYPE_PUBLISHED);
         } catch (BlopObject::BoundsError &) {
             SAL_WARN("registry", "bad data");
         }

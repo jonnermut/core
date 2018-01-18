@@ -26,6 +26,7 @@
 #include <vcl/syswin.hxx>
 #include <vcl/vclptr.hxx>
 #include <vcl/IDialogRenderable.hxx>
+#include <vcl/abstdlg.hxx>
 
 struct DialogImpl;
 class VclBox;
@@ -44,8 +45,7 @@ public:
     };
 
 private:
-    VclPtr<Dialog>  mpPrevExecuteDlg;
-    std::unique_ptr<DialogImpl>     mpDialogImpl;
+    std::unique_ptr<DialogImpl> mpDialogImpl;
     long            mnMousePositioned;
     bool            mbInExecute;
     bool            mbInClose;
@@ -57,6 +57,7 @@ private:
     VclPtr<VclButtonBox> mpActionArea;
     VclPtr<VclBox>       mpContentArea;
 
+    SAL_DLLPRIVATE void    RemoveFromDlgList();
     SAL_DLLPRIVATE void    ImplInitDialogData();
     SAL_DLLPRIVATE void    ImplInitSettings();
     SAL_DLLPRIVATE VclPtr<vcl::Window> AddBorderWindow(vcl::Window* pParent, WinBits nBits);
@@ -137,6 +138,20 @@ private:
     static void     ImplEndExecuteModal();
     void            ImplSetModalInputMode(bool bModal);
 public:
+
+    // FIXME: Need to remove old StartExecuteModal in favour of this one.
+    /// Returns true of the dialog successfully starts
+    bool StartExecuteAsync(const std::function<void(sal_Int32)> &rEndDialogFn,
+                           VclPtr<VclReferenceBase> xOwner = VclPtr<VclReferenceBase>())
+    {
+        VclAbstractDialog::AsyncContext aCtx;
+        aCtx.mxOwner = xOwner;
+        aCtx.maEndDialogFn = rEndDialogFn;
+        return StartExecuteAsync(aCtx);
+    }
+
+    /// Commence execution of a modal dialog, disposes owner on failure
+    virtual bool    StartExecuteAsync(VclAbstractDialog::AsyncContext &rCtx);
 
     // Dialog::Execute replacement API
 

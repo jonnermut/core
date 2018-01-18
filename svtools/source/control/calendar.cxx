@@ -756,14 +756,14 @@ void Calendar::ImplDraw(vcl::RenderContext& rRenderContext)
                     nDeltaX = nDayX + (nDay * mnDayWidth);
                     ImplDrawDate(rRenderContext, nDeltaX, nDayY, nDay + aTempDate.GetDay(),
                                  aTempDate.GetMonth(), aTempDate.GetYear(),
-                                 (DayOfWeek)((nDay + static_cast<sal_uInt16>(eStartDay)) % 7), true, nToday);
+                                 static_cast<DayOfWeek>((nDay + static_cast<sal_uInt16>(eStartDay)) % 7), true, nToday);
                 }
             }
             for (nDay = 1; nDay <= nDaysInMonth; nDay++)
             {
                 nDeltaX = nDayX + (nDayIndex * mnDayWidth);
                 ImplDrawDate(rRenderContext, nDeltaX, nDayY, nDay, nMonth, nYear,
-                             (DayOfWeek)((nDayIndex + static_cast<sal_uInt16>(eStartDay)) % 7),
+                             static_cast<DayOfWeek>((nDayIndex + static_cast<sal_uInt16>(eStartDay)) % 7),
                              false, nToday);
                 if (nDayIndex == 6)
                 {
@@ -785,7 +785,7 @@ void Calendar::ImplDraw(vcl::RenderContext& rRenderContext)
                     nDeltaX = nDayX + (nDayIndex * mnDayWidth);
                     ImplDrawDate(rRenderContext, nDeltaX, nDayY, nDay,
                                  aTempDate.GetMonth(), aTempDate.GetYear(),
-                                 (DayOfWeek)((nDayIndex + static_cast<sal_uInt16>(eStartDay)) % 7),
+                                 static_cast<DayOfWeek>((nDayIndex + static_cast<sal_uInt16>(eStartDay)) % 7),
                                  true, nToday);
                     if (nDayIndex == 6)
                     {
@@ -902,7 +902,7 @@ void Calendar::ImplUpdate( bool bCalcNew )
 
 void Calendar::ImplInvertDropPos()
 {
-    tools::Rectangle aRect = GetDateRect( maDropDate );//this is one Pixel to width and one to heigh
+    tools::Rectangle aRect = GetDateRect( maDropDate );//this is one Pixel to width and one to height
     aRect.Bottom() = aRect.Top()+mnDayHeight-1;
     aRect.Right() = aRect.Left()+mnDayWidth-1;
     Invert( aRect );

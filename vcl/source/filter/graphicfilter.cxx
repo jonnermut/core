@@ -608,7 +608,7 @@ static bool ImpPeekGraphicFormat( SvStream& rStream, OUString& rFormatExtension,
     //--------------------------- XBM ------------------------------------
     if( !bTest )
     {
-        sal_uLong nSize = ( nStreamLen > 2048 ) ? 2048 : nStreamLen;
+        sal_uLong nSize = std::min<sal_uLong>( nStreamLen, 2048 );
         std::unique_ptr<sal_uInt8[]> pBuf(new sal_uInt8 [ nSize ]);
 
         rStream.Seek( nStreamPos );
@@ -633,7 +633,7 @@ static bool ImpPeekGraphicFormat( SvStream& rStream, OUString& rFormatExtension,
     if( !bTest )
     {
         sal_uInt8* pCheckArray = sFirstBytes;
-        sal_uLong nCheckSize = nStreamLen < 256 ? nStreamLen : 256;
+        sal_uLong nCheckSize = std::min<sal_uLong>(nStreamLen, 256);
 
         sal_uInt8 sExtendedOrDecompressedFirstBytes[2048];
         sal_uLong nDecompressedSize = nCheckSize;
@@ -647,7 +647,7 @@ static bool ImpPeekGraphicFormat( SvStream& rStream, OUString& rFormatExtension,
             rStream.Seek(nStreamPos);
             aCodec.BeginCompression(ZCODEC_DEFAULT_COMPRESSION, false, true);
             nDecompressedSize = aCodec.Read(rStream, sExtendedOrDecompressedFirstBytes, 2048);
-            nCheckSize = nDecompressedSize < 256 ? nDecompressedSize : 256;
+            nCheckSize = std::min<sal_uLong>(nDecompressedSize, 256);
             aCodec.EndCompression();
             pCheckArray = sExtendedOrDecompressedFirstBytes;
 
@@ -688,11 +688,11 @@ static bool ImpPeekGraphicFormat( SvStream& rStream, OUString& rFormatExtension,
 
             if (bIsGZip)
             {
-                nCheckSize = nDecompressedSize < 2048 ? nDecompressedSize : 2048;
+                nCheckSize = std::min<sal_uLong>(nDecompressedSize, 2048);
             }
             else
             {
-                nCheckSize = nStreamLen < 2048 ? nStreamLen : 2048;
+                nCheckSize = std::min<sal_uLong>(nStreamLen, 2048);
                 rStream.Seek(nStreamPos);
                 nCheckSize = rStream.ReadBytes(sExtendedOrDecompressedFirstBytes, nCheckSize);
             }
@@ -856,7 +856,7 @@ static Graphic ImpGetScaledGraphic( const Graphic& rGraphic, FilterConfigItem& r
             if ( nColors )  // graphic conversion necessary ?
             {
                 BitmapEx aBmpEx( aGraphic.GetBitmapEx() );
-                aBmpEx.Convert( (BmpConversion)nColors );   // the entries in the xml section have the same meaning as
+                aBmpEx.Convert( static_cast<BmpConversion>(nColors) );   // the entries in the xml section have the same meaning as
                 aGraphic = aBmpEx;                          // they have in the BmpConversion enum, so it should be
             }                                               // allowed to cast them
         }
@@ -1100,7 +1100,7 @@ GraphicFilter::~GraphicFilter()
         }
     }
 
-    delete pErrorEx;
+    pErrorEx.reset();
 }
 
 void GraphicFilter::ImplInit()
@@ -1126,7 +1126,7 @@ void GraphicFilter::ImplInit()
         osl::FileBase::getSystemPathFromFileURL(url, aFilterPath);
     }
 
-    pErrorEx = new FilterErrorEx;
+    pErrorEx.reset( new FilterErrorEx );
 }
 
 ErrCode GraphicFilter::ImplSetError( ErrCode nError, const SvStream* pStm )
@@ -1984,7 +1984,7 @@ ErrCode GraphicFilter::ExportGraphic( const Graphic& rGraphic, const OUString& r
             if( aFilterName.equalsIgnoreAsciiCase( EXP_BMP ) )
             {
                 Bitmap aBmp( aGraphic.GetBitmap() );
-                BmpConversion nColorRes = (BmpConversion) aConfigItem.ReadInt32( "Colors", 0 );
+                BmpConversion nColorRes = static_cast<BmpConversion>(aConfigItem.ReadInt32( "Colors", 0 ));
                 if ( nColorRes != BmpConversion::NNONE && ( nColorRes <= BmpConversion::N24Bit) )
                 {
                     if( !aBmp.Convert( nColorRes ) )

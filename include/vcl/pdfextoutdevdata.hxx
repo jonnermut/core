@@ -27,6 +27,7 @@
 #include <vcl/gdimtf.hxx>
 #include <vcl/mapmod.hxx>
 #include <vector>
+#include <memory>
 
 class Graphic;
 
@@ -87,8 +88,8 @@ class VCL_DLLPUBLIC PDFExtOutDevData : public ExtOutDevData
     sal_Int32                   mnCompressionQuality;
     css::lang::Locale           maDocLocale;
 
-    PageSyncData*               mpPageSyncData;
-    GlobalSyncData*             mpGlobalSyncData;
+    std::unique_ptr<PageSyncData> mpPageSyncData;
+    std::unique_ptr<GlobalSyncData> mpGlobalSyncData;
 
     std::vector< PDFExtOutDevBookmarkEntry > maBookmarks;
 
@@ -374,7 +375,7 @@ public:
     For different purposes it may be useful to paint a structure element's
     content discontinously. In that case an already existing structure element
     can be appended to by using SetCurrentStructureElement. The
-    refenrenced structure element becomes the current structure element with
+    referenced structure element becomes the current structure element with
     all consequences: all following structure elements are appended as children
     of the current element.
     </p>

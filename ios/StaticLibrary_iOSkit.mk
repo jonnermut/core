@@ -19,13 +19,10 @@
 
 $(eval $(call gb_StaticLibrary_StaticLibrary,iOS_kitBridge))
 
-$(eval $(call gb_StaticLibrary_set_include,iOS_kitBridge,\
-    $$(INCLUDE) \
-    -I$(SRCDIR)/ios/generated \
-))
-
 $(eval $(call gb_StaticLibrary_add_cobjects,iOS_kitBridge,\
     ios/source/LibreOfficeKit \
 ))
+
+$(call gb_StaticLibrary_get_target,ios/iOS_kitBridge): $(call gb_CustomTarget_get_target,ios/iOS_setup)
 
 # vim: set noet sw=4 ts=4:

@@ -20,6 +20,7 @@
 
 #include <new>
 #include <memory>
+#include <algorithm>
 #include <sal/types.h>
 #include <sal/macros.h>
 #include <osl/endian.h>
@@ -570,7 +571,7 @@ void MethodEntry::reallocParams(sal_uInt16 size)
     if (m_paramCount)
     {
         sal_uInt16 i;
-        sal_uInt16 mn = size < m_paramCount ? size : m_paramCount;
+        sal_uInt16 mn = std::min(size, m_paramCount);
 
         for (i = 0; i < mn; i++)
         {
@@ -594,7 +595,7 @@ void MethodEntry::reallocExcs(sal_uInt16 size)
         newExcNames = nullptr;
 
     sal_uInt16 i;
-    sal_uInt16 mn = size < m_excCount ? size : m_excCount;
+    sal_uInt16 mn = std::min(size, m_excCount);
 
     for (i = 0; i < mn; i++)
     {
@@ -829,7 +830,7 @@ void TypeWriter::createBlop()
 
             if (m_fields[i].m_constValueType != RT_TYPE_NONE)
             {
-                pInfo = new CPInfo((CPInfoTag)m_fields[i].m_constValueType, pInfo);
+                pInfo = new CPInfo(static_cast<CPInfoTag>(m_fields[i].m_constValueType), pInfo);
                 pInfo->m_value.aConst = m_fields[i].m_constValue;
                 cpIndexValue = pInfo->m_index;
             }

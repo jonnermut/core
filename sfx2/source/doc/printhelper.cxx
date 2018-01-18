@@ -55,7 +55,7 @@
 #include <sfx2/objsh.hxx>
 #include <sfx2/event.hxx>
 
-#define SFX_PRINTABLESTATE_CANCELJOB    (css::view::PrintableState)-2
+#define SFX_PRINTABLESTATE_CANCELJOB    css::view::PrintableState(-2)
 
 using namespace ::com::sun::star;
 using namespace ::com::sun::star::uno;
@@ -297,7 +297,7 @@ uno::Sequence< beans::PropertyValue > SAL_CALL SfxPrintHelper::getPrinter()
     aPrinter.getArray()[2].Value <<= eFormat;
 
     aPrinter.getArray()[1].Name = "PaperOrientation";
-    view::PaperOrientation eOrient = (view::PaperOrientation)pPrinter->GetOrientation();
+    view::PaperOrientation eOrient = static_cast<view::PaperOrientation>(pPrinter->GetOrientation());
     aPrinter.getArray()[1].Value <<= eOrient;
 
     aPrinter.getArray()[0].Name = "Name";
@@ -369,12 +369,12 @@ void SfxPrintHelper::impl_setPrinter(const uno::Sequence< beans::PropertyValue >
             {
                 if ( !( rProp.Value >>= lDummy ) )
                     throw css::lang::IllegalArgumentException();
-                eOrient = ( view::PaperOrientation) lDummy;
+                eOrient = static_cast<view::PaperOrientation>(lDummy);
             }
 
-            if ( (Orientation) eOrient != pPrinter->GetOrientation() )
+            if ( static_cast<Orientation>(eOrient) != pPrinter->GetOrientation() )
             {
-                pPrinter->SetOrientation( (Orientation) eOrient );
+                pPrinter->SetOrientation( static_cast<Orientation>(eOrient) );
                 nChangeFlags |= SfxPrinterChangeFlags::CHG_ORIENTATION;
             }
         }
@@ -386,7 +386,7 @@ void SfxPrintHelper::impl_setPrinter(const uno::Sequence< beans::PropertyValue >
             {
                 if ( !( rProp.Value >>= lDummy ) )
                     throw css::lang::IllegalArgumentException();
-                nPaperFormat = ( view::PaperFormat ) lDummy;
+                nPaperFormat = static_cast<view::PaperFormat>(lDummy);
             }
 
             if ( convertToPaper(nPaperFormat) != pPrinter->GetPaper() )
@@ -519,7 +519,7 @@ class ImplUCBPrintWatcher : public ::osl::Thread
         }
 
         /* static helper to move the temp. file to the target location by using the ucb
-           It's static to be useable from outside too. So it's not really necessary to start
+           It's static to be usable from outside too. So it's not really necessary to start
            the thread, if finishing of the job was detected outside this thread.
            But it must be called without using a corresponding thread for the given parameter!
          */
@@ -634,7 +634,7 @@ void SAL_CALL SfxPrintHelper::print(const uno::Sequence< beans::PropertyValue >&
             {
                 // OK - it's not a valid URL. But may it's a simple
                 // system path directly. It will be supported for historical
-                // reasons. Otherwhise we break to much external code ...
+                // reasons. Otherwise we break to much external code ...
                 // We try to convert it to a file URL. If its possible
                 // we put the system path to the item set and let vcl work with it.
                 // No ucb or thread will be necessary then. In case it couldn't be

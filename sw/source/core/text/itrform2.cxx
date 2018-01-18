@@ -268,6 +268,19 @@ SwLinePortion *SwTextFormatter::Underflow( SwTextFormatInfo &rInf )
             pPor = m_pCurr;
         }
     }
+
+    // Make sure that m_pFirstOfBorderMerge does not point to a portion which
+    // will be deleted by Truncate() below.
+    SwLinePortion* pNext = pPor->GetPortion();
+    while (pNext)
+    {
+        if (pNext == m_pFirstOfBorderMerge)
+        {
+            m_pFirstOfBorderMerge = nullptr;
+            break;
+        }
+        pNext = pNext->GetPortion();
+    }
     pPor->Truncate();
     SwLinePortion *const pRest( rInf.GetRest() );
     if (pRest && pRest->InFieldGrp() &&
@@ -943,9 +956,9 @@ SwTextPortion *SwTextFormatter::NewTextPortion( SwTextFormatInfo &rInf )
     nNextChg = std::min( nNextChg, nNextDir );
 
     // Turbo boost:
-    // We assume that a font's characters are not larger than twice
-    // as wide as heigh.
-    // Very crazy: We need to take the ascent into account.
+    // We assume that font characters are not larger than twice
+    // as wide as height.
+    // Very crazy: we need to take the ascent into account.
 
     // Mind the trap! GetSize() contains the wished-for height, the real height
     // is only known in CalcAscent!

@@ -1733,9 +1733,9 @@ IMPL_LINK_NOARG(vcl::Window, ImplAsyncFocusHdl, void*, void)
             {
                 ImplSVData* pSVData = ImplGetSVData();
                 vcl::Window*     pTopLevelWindow = ImplGetWindowImpl()->mpFrameData->mpFocusWin->ImplGetFirstOverlapWindow();
-                if ( ( ! pTopLevelWindow->IsInputEnabled() || pTopLevelWindow->IsInModalMode() )
-                     && pSVData->maWinData.mpLastExecuteDlg )
-                    pSVData->maWinData.mpLastExecuteDlg->ToTop( ToTopFlags::RestoreWhenMin | ToTopFlags::GrabFocusOnly);
+
+                if ((!pTopLevelWindow->IsInputEnabled() || pTopLevelWindow->IsInModalMode()) && !pSVData->maWinData.mpExecuteDialogs.empty())
+                    pSVData->maWinData.mpExecuteDialogs.back()->ToTop(ToTopFlags::RestoreWhenMin | ToTopFlags::GrabFocusOnly);
                 else
                     pTopLevelWindow->GrabFocus();
             }
@@ -2527,7 +2527,7 @@ bool ImplWindowFrameProc( vcl::Window* _pWindow, SalEvent nEvent, const void* pE
 
 
         default:
-            SAL_WARN( "vcl.layout", "ImplWindowFrameProc(): unknown event (" << (int)nEvent << ")" );
+            SAL_WARN( "vcl.layout", "ImplWindowFrameProc(): unknown event (" << static_cast<int>(nEvent) << ")" );
             break;
     }
 

@@ -53,16 +53,15 @@ class StyleSheetEntry
 {
     std::vector<css::beans::PropertyValue> m_aInteropGrabBag;
 public:
-    OUString sStyleIdentifierI;
-    OUString sStyleIdentifierD;
+    OUString sStyleIdentifierD;   // WW8 name
     bool            bIsDefaultStyle;
+    bool            bIsChapterNumbering;  //LO built-in Chapter Numbering "Outline" list style
     bool            bInvalidHeight;
     bool            bHasUPE; //universal property expansion
     StyleType       nStyleTypeCode; //sgc
     OUString sBaseStyleIdentifier;
     OUString sNextStyleIdentifier;
     OUString sStyleName;
-    OUString sStyleName1;
     PropertyMapPtr  pProperties;
     OUString sConvertedStyleName;
     std::vector<css::beans::PropertyValue> aLatentStyles; ///< Attributes of latentStyles

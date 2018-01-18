@@ -33,6 +33,7 @@
 #include <android/log.h>
 #elif defined WNT
 #include <process.h>
+#include <windows.h>
 #define OSL_DETAIL_GETPID _getpid()
 #else
 #include <unistd.h>
@@ -81,13 +82,13 @@ char const * toString(sal_detail_LogLevel level) {
 // the process is running":
 #if defined ANDROID
 
-char const * getEnvironmentVariable() {
+char const * getLogLevel() {
     return std::getenv("SAL_LOG");
 }
 
 #else
 
-char const * getEnvironmentVariable_(const char* env) {
+char const * getEnvironmentVariable(const char* env) {
     char const * p1 = std::getenv(env);
     if (p1 == nullptr) {
         return nullptr;
@@ -99,18 +100,80 @@ char const * getEnvironmentVariable_(const char* env) {
     return p2;
 }
 
-char const * getEnvironmentVariable() {
-    static char const * env = getEnvironmentVariable_("SAL_LOG");
-    return env;
+#ifdef WNT
+# define INI_STRINGBUF_SIZE 1024
+
+bool getValueFromLoggingIniFile(const char* key, char* value) {
+    char buffer[MAX_PATH];
+    GetModuleFileName(NULL, buffer, MAX_PATH);
+    std::string sProgramDirectory = std::string(buffer);
+    std::string::size_type pos = sProgramDirectory.find_last_of( "\\/" );
+    sProgramDirectory = sProgramDirectory.substr(0, pos+1);
+    sProgramDirectory += "logging.ini";
+
+    std::ifstream logFileStream(sProgramDirectory);
+    if (!logFileStream.good())
+        return false;
+
+    std::size_t n;
+    std::string aKey;
+    std::string aValue;
+    std::string sWantedKey(key);
+    std::string sLine;
+    while (std::getline(logFileStream, sLine)) {
+        if (sLine.find('#') == 0)
+            continue;
+        if ( ( n = sLine.find('=') ) != std::string::npos) {
+            aKey = sLine.substr(0, n);
+            if (aKey != sWantedKey)
+                continue;
+            aValue = sLine.substr(n+1, sLine.length());
+            snprintf(value, INI_STRINGBUF_SIZE, "%s", aValue.c_str());
+            return true;
+        }
+    }
+    return false;
+}
+#endif
+
+char const * getLogLevel() {
+    // First check the environment variable, then the setting in logging.ini
+    static char const * env = getEnvironmentVariable("SAL_LOG");
+
+    if (env != nullptr)
+        return env;
+
+#ifdef WNT
+    static char logLevel[INI_STRINGBUF_SIZE];
+    if (getValueFromLoggingIniFile("LogLevel", logLevel))
+        return logLevel;
+#endif
+
+    return nullptr;
 }
 
-char const * getLogFile() {
-    static char const * logFile = getEnvironmentVariable_("SAL_LOG_FILE");
-    return logFile;
+std::ofstream * getLogFile() {
+    // First check the environment variable, then the setting in logging.ini
+    char const * logFile = getEnvironmentVariable("SAL_LOG_FILE");
+    if (!logFile)
+        return nullptr;
+
+#ifdef WNT
+    static char logFilePath[INI_STRINGBUF_SIZE];
+    if (getValueFromLoggingIniFile("LogFilePath", logFilePath))
+        logFile = logFilePath;
+    else
+        return nullptr;
+#endif
+
+    // stays until process exits
+    static std::ofstream file(logFile, std::ios::app | std::ios::out);
+
+    return &file;
 }
 
 void maybeOutputTimestamp(std::ostringstream &s) {
-    char const * env = getEnvironmentVariable();
+    static char const * env = getLogLevel();
     if (env == nullptr)
         return;
     bool outputTimestamp = false;
@@ -135,7 +198,7 @@ void maybeOutputTimestamp(std::ostringstream &s) {
                 tm.tm_year = dateTime.Year - 1900;
                 strftime(ts, sizeof(ts), "%Y-%m-%d:%H:%M:%S", &tm);
                 char milliSecs[11];
-                sprintf(milliSecs, "%03u", static_cast<unsigned>(dateTime.NanoSeconds/1000000));
+                snprintf(milliSecs, sizeof(milliSecs), "%03u", static_cast<unsigned>(dateTime.NanoSeconds/1000000));
                 s << ts << '.' << milliSecs << ':';
             }
             if (outputRelativeTimer) {
@@ -156,7 +219,7 @@ void maybeOutputTimestamp(std::ostringstream &s) {
                 else
                     milliSeconds = (now.Nanosec-first.Nanosec)/1000000;
                 char relativeTimestamp[100];
-                sprintf(relativeTimestamp, "%d.%03d", seconds, milliSeconds);
+                snprintf(relativeTimestamp, sizeof(relativeTimestamp), "%d.%03d", seconds, milliSeconds);
                 s << relativeTimestamp << ':';
             }
             return;
@@ -217,7 +280,7 @@ void sal_detail_log(
     if (backtraceDepth != 0) {
         s << " at:\n" << osl::detail::backtraceAsString(backtraceDepth);
     }
-    s << '\n';
+
 #if defined ANDROID
     int android_log_level;
     switch (level) {
@@ -258,12 +321,13 @@ void sal_detail_log(
         syslog(prio, "%s", s.str().c_str());
 #endif
     } else {
-        const char* logFile = getLogFile();
+        // avoid calling getLogFile() more than once
+        static std::ofstream * logFile = getLogFile();
         if (logFile) {
-            std::ofstream file(logFile, std::ios::app | std::ios::out);
-            file << s.str();
+            *logFile << s.str() << std::endl;
         }
         else {
+            s << '\n';
             std::fputs(s.str().c_str(), stderr);
             std::fflush(stderr);
         }
@@ -296,7 +360,7 @@ sal_Bool sal_detail_log_report(sal_detail_LogLevel level, char const * area) {
         return true;
     }
     assert(area != nullptr);
-    char const * env = getEnvironmentVariable();
+    static char const * env = getLogLevel();
     if (env == nullptr) {
         env = "+WARN";
     }

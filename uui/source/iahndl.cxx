@@ -1001,7 +1001,7 @@ NameClashResolveDialogResult executeSimpleNameClashResolveDialog( vcl::Window *p
     ScopedVclPtrInstance<NameClashDialog> aDialog(pParent, aResLocale, rTargetFolderURL,
                                                   rClashingName, rProposedNewName, bAllowOverwrite);
 
-    NameClashResolveDialogResult eResult = (NameClashResolveDialogResult) aDialog->Execute();
+    NameClashResolveDialogResult eResult = static_cast<NameClashResolveDialogResult>(aDialog->Execute());
     rProposedNewName = aDialog->getNewName();
     return eResult;
 }
@@ -1088,7 +1088,7 @@ UUIInteractionHelper::handleGenericErrorRequest(
         getContinuations(rContinuations, &xApprove, &xAbort);
 
         // Note: It's important to convert the transported long to the
-        // required  unsigned long value. Otherwhise using as flag field
+        // required  unsigned long value. Otherwise using as flag field
         // can fail ...
         ErrCode  nError(nErrorCode);
         bool bWarning = !nError.IgnoreWarning();

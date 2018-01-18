@@ -61,6 +61,7 @@
 #include <i18nutil/transliteration.hxx>
 #include <i18nutil/searchopt.hxx>
 #include <reffld.hxx>
+#include <dbfld.hxx>
 #include <txatbase.hxx>
 #include <ftnidx.hxx>
 #include <txtftn.hxx>
@@ -264,6 +265,7 @@ public:
     void testTdf58604();
     void testTdf112025();
     void testTdf113877();
+    void testTdf113877NoMerge();
     void testMsWordCompTrailingBlanks();
     void testCreateDocxAnnotation();
     void testTdf107976();
@@ -293,6 +295,8 @@ public:
     void testTdf108048();
     void testTdf114306();
     void testTdf113481();
+    void testTdf115013();
+    void testTdf114536();
 
     CPPUNIT_TEST_SUITE(SwUiWriterTest);
     CPPUNIT_TEST(testReplaceForward);
@@ -437,6 +441,7 @@ public:
     CPPUNIT_TEST(testTdf58604);
     CPPUNIT_TEST(testTdf112025);
     CPPUNIT_TEST(testTdf113877);
+    CPPUNIT_TEST(testTdf113877NoMerge);
     CPPUNIT_TEST(testMsWordCompTrailingBlanks);
     CPPUNIT_TEST(testCreateDocxAnnotation);
     CPPUNIT_TEST(testTdf107976);
@@ -466,6 +471,8 @@ public:
     CPPUNIT_TEST(testTdf108048);
     CPPUNIT_TEST(testTdf114306);
     CPPUNIT_TEST(testTdf113481);
+    CPPUNIT_TEST(testTdf115013);
+    CPPUNIT_TEST(testTdf114536);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -2263,7 +2270,7 @@ void SwUiWriterTest::testTdf72788()
     SwIndex aSt( pTextNode, 0 );
     sal_Int32 nEnd = pTextNode->Len();
     pTextNode->RstTextAttr(aSt, nEnd - aSt.GetIndex());
-    //Incase of Regression RstTextAttr() call will result to infinite recursion
+    //In case of Regression RstTextAttr() call will result to infinite recursion
     //Check that bold is removed in first paragraph
     pTextNode->GetAttr(aSet, 5, 12);
     SfxPoolItem const * pPoolItem2 = aSet.GetItem(RES_CHRATR_WEIGHT);
@@ -5281,6 +5288,8 @@ void SwUiWriterTest::testTdf114306()
     assertXPath(pXmlDoc, "/root/page[2]/body/tab[1]/row[1]/cell[1]/txt", 1);
 }
 
+// During insert of the document with list inside into the main document inside the list
+// we should merge both lists into one, when they have the same list properties
 void SwUiWriterTest::testTdf113877()
 {
     load(DATA_DIRECTORY, "tdf113877_insert_numbered_list.odt");
@@ -5298,13 +5307,52 @@ void SwUiWriterTest::testTdf113877()
         lcl_dispatchCommand(mxComponent, ".uno:InsertDoc", aPropertyValues);
     }
 
+    const OUString listId1 = getProperty<OUString>(getParagraph(1), "ListId");
+    const OUString listId4 = getProperty<OUString>(getParagraph(4), "ListId");
+    const OUString listId5 = getProperty<OUString>(getParagraph(5), "ListId");
+    const OUString listId6 = getProperty<OUString>(getParagraph(6), "ListId");
+    const OUString listId7 = getProperty<OUString>(getParagraph(7), "ListId");
+
     // the initial list with 4 list items
-    CPPUNIT_ASSERT_EQUAL(getProperty<OUString>(getParagraph(1), "ListId"), getProperty<OUString>(getParagraph(4), "ListId"));
+    CPPUNIT_ASSERT_EQUAL(listId1, listId4);
 
     // the last of the first list, and the first of the inserted list
-    CPPUNIT_ASSERT_EQUAL(getProperty<OUString>(getParagraph(4), "ListId"), getProperty<OUString>(getParagraph(5), "ListId"));
-    CPPUNIT_ASSERT_EQUAL(getProperty<OUString>(getParagraph(5), "ListId"), getProperty<OUString>(getParagraph(6), "ListId"));
-    CPPUNIT_ASSERT_EQUAL(getProperty<OUString>(getParagraph(6), "ListId"), getProperty<OUString>(getParagraph(7), "ListId"));
+    CPPUNIT_ASSERT_EQUAL(listId4, listId5);
+    CPPUNIT_ASSERT_EQUAL(listId5, listId6);
+    CPPUNIT_ASSERT_EQUAL(listId6, listId7);
+}
+
+// The same test as testTdf113877() but merging of two list should not be performed.
+void SwUiWriterTest::testTdf113877NoMerge()
+{
+    load(DATA_DIRECTORY, "tdf113877_insert_numbered_list.odt");
+
+    // set a page cursor into the end of the document
+    uno::Reference<frame::XModel> xModel(mxComponent, uno::UNO_QUERY);
+    uno::Reference<text::XTextViewCursorSupplier> xTextViewCursorSupplier(xModel->getCurrentController(), uno::UNO_QUERY);
+    uno::Reference<text::XPageCursor> xCursor(xTextViewCursorSupplier->getViewCursor(), uno::UNO_QUERY);
+    xCursor->jumpToEndOfPage();
+
+    // insert the same document at current cursor position
+    {
+        const OUString insertFileid = m_directories.getURLFromSrc(DATA_DIRECTORY) + "tdf113877_insert_numbered_list_abcd.odt";
+        uno::Sequence<beans::PropertyValue> aPropertyValues(comphelper::InitPropertySequence({ { "Name", uno::makeAny(insertFileid) } }));
+        lcl_dispatchCommand(mxComponent, ".uno:InsertDoc", aPropertyValues);
+    }
+
+    const OUString listId1 = getProperty<OUString>(getParagraph(1), "ListId");
+    const OUString listId4 = getProperty<OUString>(getParagraph(4), "ListId");
+    const OUString listId5 = getProperty<OUString>(getParagraph(5), "ListId");
+    const OUString listId6 = getProperty<OUString>(getParagraph(6), "ListId");
+    const OUString listId7 = getProperty<OUString>(getParagraph(7), "ListId");
+
+    // the initial list with 4 list items
+    CPPUNIT_ASSERT_EQUAL(listId1, listId4);
+
+    // the last of the first list, and the first of the inserted list
+    CPPUNIT_ASSERT(listId4 != listId5);
+    CPPUNIT_ASSERT_EQUAL(listId5, listId6);
+    CPPUNIT_ASSERT(listId6 != listId7);
 }
 
 void SwUiWriterTest::testTdf108524()
@@ -5606,6 +5654,13 @@ void SwUiWriterTest::testTdf112160()
 }
 #endif
 
+void SwUiWriterTest::testTdf114536()
+{
+    // This crashed in SwTextFormatter::MergeCharacterBorder() due to a
+    // use after free.
+    createDoc("tdf114536.odt");
+}
+
 void SwUiWriterTest::testParagraphOfTextRange()
 {
     SwDoc* pDoc = createDoc("paragraph-of-text-range.odt");
@@ -5675,7 +5730,7 @@ void SwUiWriterTest::testTdf113481()
     SwDoc* pDoc = createDoc("tdf113481-IVS.odt");
     SwWrtShell* pWrtShell = pDoc->GetDocShell()->GetWrtShell();
 
-    // One backspace should completely remove the CJK ideograph varation sequence
+    // One backspace should completely remove the CJK ideograph variation sequence
     pWrtShell->EndPara();
     // Before: U+8FBA U+E0102. After: empty
     pWrtShell->DelLeft();
@@ -5686,10 +5741,13 @@ void SwUiWriterTest::testTdf113481()
     pWrtShell->Down(false);
     pWrtShell->EndPara();
     // Before: U+4E2D U+2205 U+FE00. After: U+4E2D U+2205
-    pWrtShell->DelLeft();
-    const uno::Reference< text::XTextRange > xPara2 = getParagraph(2);
-    CPPUNIT_ASSERT_EQUAL(sal_Int32(2), xPara2->getString().getLength());
-    CPPUNIT_ASSERT_EQUAL(u'\x2205', xPara2->getString()[1]);
+    if ( pWrtShell->GetScriptType() == SvtScriptType::ASIAN )
+    {
+        pWrtShell->DelLeft();
+        const uno::Reference< text::XTextRange > xPara2 = getParagraph(2);
+        CPPUNIT_ASSERT_EQUAL(sal_Int32(2), xPara2->getString().getLength());
+        CPPUNIT_ASSERT_EQUAL(u'\x2205', xPara2->getString()[1]);
+    }
 
     // Characters of other scripts, remove one character.
     pWrtShell->Down(false);
@@ -5699,6 +5757,52 @@ void SwUiWriterTest::testTdf113481()
     const uno::Reference< text::XTextRange > xPara3 = getParagraph(3);
     CPPUNIT_ASSERT_EQUAL(sal_Int32(1), xPara3->getString().getLength());
     CPPUNIT_ASSERT_EQUAL(u'\x1820', xPara3->getString()[0]);
+}
+
+void SwUiWriterTest::testTdf115013()
+{
+   const OUString sColumnName("Name with spaces, \"quotes\" and \\backslashes");
+
+   //create new writer document
+    SwDoc* pDoc = createDoc();
+
+    {
+        // Load and register data source
+        const OUString aDataSourceURI(m_directories.getURLFromSrc(DATA_DIRECTORY) + "datasource.ods");
+        OUString sDataSource = SwDBManager::LoadAndRegisterDataSource(aDataSourceURI, nullptr);
+        CPPUNIT_ASSERT(!sDataSource.isEmpty());
+
+        // Insert a new field type for the mailmerge field
+        SwDBData aDBData;
+        aDBData.sDataSource = sDataSource;
+        aDBData.sCommand = "Sheet1";
+        SwWrtShell* pWrtShell = pDoc->GetDocShell()->GetWrtShell();
+        CPPUNIT_ASSERT(pWrtShell);
+        SwDBFieldType* pFieldType = static_cast<SwDBFieldType*>(pWrtShell->InsertFieldType(
+            SwDBFieldType(pDoc, sColumnName, aDBData)));
+        CPPUNIT_ASSERT(pFieldType);
+
+        // Insert the field into document
+        SwDBField aField(pFieldType);
+        pWrtShell->Insert(aField);
+    }
+    // Save it as DOCX & load it again
+    reload("Office Open XML Text", "mm-field.docx");
+
+    CPPUNIT_ASSERT(mxComponent.get());
+    pDoc = dynamic_cast<SwXTextDocument*>(mxComponent.get())->GetDocShell()->GetDoc();
+    CPPUNIT_ASSERT(pDoc);
+    SwWrtShell* pWrtShell = pDoc->GetDocShell()->GetWrtShell();
+    CPPUNIT_ASSERT(pWrtShell);
+    SwPaM* pCursor = pDoc->GetEditShell()->GetCursor();
+    CPPUNIT_ASSERT(pCursor);
+
+    // Get the field at the beginning of the document
+    SwDBField* pField = dynamic_cast<SwDBField*>(SwCursorShell::GetFieldAtCursor(pCursor, true));
+    CPPUNIT_ASSERT(pField);
+    OUString sColumn = static_cast<SwDBFieldType*>(pField->GetTyp())->GetColumnName();
+    // The column name must come correct after round trip
+    CPPUNIT_ASSERT_EQUAL(sColumnName, sColumn);
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SwUiWriterTest);

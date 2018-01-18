@@ -742,7 +742,7 @@ ScUndoReplaceNote::ScUndoReplaceNote( ScDocShell& rDocShell, const ScAddress& rP
     mpDrawUndo( pDrawUndo )
 {
     OSL_ENSURE( maOldData.mxCaption || maNewData.mxCaption, "ScUndoReplaceNote::ScUndoReplaceNote - missing note captions" );
-    OSL_ENSURE( !maOldData.mxInitData.get() && !maNewData.mxInitData.get(), "ScUndoReplaceNote::ScUndoReplaceNote - unexpected unitialized note" );
+    OSL_ENSURE( !maOldData.mxInitData.get() && !maNewData.mxInitData.get(), "ScUndoReplaceNote::ScUndoReplaceNote - unexpected uninitialized note" );
     maOldData.mxCaption.setNotOwner();
     maNewData.mxCaption.setNotOwner();
 }
@@ -890,7 +890,7 @@ OUString ScUndoDetective::GetComment() const
 {
     const char* pId = STR_UNDO_DETDELALL;
     if ( !bIsDelete )
-        switch ( (ScDetOpType) nAction )
+        switch ( static_cast<ScDetOpType>(nAction) )
         {
             case SCDETOP_ADDSUCC:   pId = STR_UNDO_DETADDSUCC;  break;
             case SCDETOP_DELSUCC:   pId = STR_UNDO_DETDELSUCC;  break;
@@ -923,7 +923,7 @@ void ScUndoDetective::Undo()
         {
             ScDetOpDataVector& rVec = pList->GetDataVector();
             ScDetOpDataVector::iterator it = rVec.begin() + rVec.size() - 1;
-            if ( (*it)->GetOperation() == (ScDetOpType) nAction && (*it)->GetPos() == aPos )
+            if ( (*it)->GetOperation() == static_cast<ScDetOpType>(nAction) && (*it)->GetPos() == aPos )
                 rVec.erase( it);
             else
             {
@@ -950,7 +950,7 @@ void ScUndoDetective::Redo()
     if (bIsDelete)
         rDoc.ClearDetectiveOperations();
     else
-        rDoc.AddDetectiveOperation( ScDetOpData( aPos, (ScDetOpType) nAction ) );
+        rDoc.AddDetectiveOperation( ScDetOpData( aPos, static_cast<ScDetOpType>(nAction) ) );
 
     ScTabViewShell* pViewShell = ScTabViewShell::GetActiveViewShell();
     if (pViewShell)

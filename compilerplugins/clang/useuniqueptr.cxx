@@ -88,6 +88,8 @@ void UseUniquePtr::CheckForUnconditionalDelete(const CXXDestructorDecl* destruct
         {
             if (!isa<MemberExpr>(binaryOp->getLHS()->IgnoreImpCasts()))
                 continue;
+            if (!isa<CXXNullPtrLiteralExpr>(binaryOp->getRHS()->IgnoreImpCasts()))
+                continue;
         }
         else
             continue;
@@ -109,6 +111,9 @@ void UseUniquePtr::CheckForUnconditionalDelete(const CXXDestructorDecl* destruct
     }
 }
 
+/**
+ * Check the delete expression in a destructor.
+ */
 void UseUniquePtr::CheckDeleteExpr(const CXXDestructorDecl* destructorDecl, const CXXDeleteExpr* deleteExpr)
 {
     const ImplicitCastExpr* pCastExpr = dyn_cast<ImplicitCastExpr>(deleteExpr->getArgument());
@@ -251,7 +256,11 @@ void UseUniquePtr::CheckForRangedLoopDelete(const CXXDestructorDecl* destructorD
         auto cxxForRangeStmt = dyn_cast<CXXForRangeStmt>(*i);
         if (!cxxForRangeStmt)
             continue;
-        auto deleteExpr = dyn_cast<CXXDeleteExpr>(cxxForRangeStmt->getBody());
+        CXXDeleteExpr const * deleteExpr = nullptr;
+        if (auto compoundStmt = dyn_cast<CompoundStmt>(cxxForRangeStmt->getBody()))
+            deleteExpr = dyn_cast<CXXDeleteExpr>(*compoundStmt->body_begin());
+        else
+            deleteExpr = dyn_cast<CXXDeleteExpr>(cxxForRangeStmt->getBody());
         if (!deleteExpr)
             continue;
         auto memberExpr = dyn_cast<MemberExpr>(cxxForRangeStmt->getRangeInit());
@@ -281,6 +290,9 @@ void UseUniquePtr::CheckForRangedLoopDelete(const CXXDestructorDecl* destructorD
         auto tc = loplugin::TypeCheck(fieldDecl->getType());
         if (tc.Class("map").StdNamespace() || tc.Class("unordered_map").StdNamespace())
             continue;
+        // there is a loop in ~ImplPrnQueueList deleting stuff on a global data structure
+        if (loplugin::hasPathnamePrefix(aFileName, SRCDIR "/vcl/inc/print.h"))
+            return;
 
         report(
             DiagnosticsEngine::Warning,

@@ -236,7 +236,7 @@ void ODbaseTable::readHeader()
     else
     {
         // Consistency check of the header:
-        m_aHeader.type = (DBFType)nType;
+        m_aHeader.type = static_cast<DBFType>(nType);
         switch (m_aHeader.type)
         {
             case dBaseIII:
@@ -667,7 +667,7 @@ void ODbaseTable::refreshIndexes()
 
         for (sal_uInt16 nKey = 0; nKey < nKeyCnt; nKey++)
         {
-            // Refences the key an index-file?
+            // References the key an index-file?
             aKeyName = aInfFile.GetKeyName( nKey );
             //...if yes, add the index list of the table
             if (aKeyName.startsWith("NDX"))

@@ -2558,8 +2558,8 @@ void WW8PLCFx_Fc_FKP::WW8Fkp::FillEntry(WW8PLCFx_Fc_FKP::WW8Fkp::Entry &rEntry,
 WW8PLCFx_Fc_FKP::WW8Fkp::WW8Fkp(const WW8Fib& rFib, SvStream* pSt,
     SvStream* pDataSt, long _nFilePos, long nItemSiz, ePLCFT ePl,
     WW8_FC nStartFc)
-    : nItemSize(nItemSiz), nFilePos(_nFilePos),  mnIdx(0), ePLCF(ePl)
-    , maSprmParser(rFib)
+    : nItemSize(nItemSiz), nFilePos(_nFilePos), mnIdx(0), ePLCF(ePl)
+    , mnMustRemainCached(0), maSprmParser(rFib)
 {
     memset(maRawData, 0, 512);
 
@@ -3027,8 +3027,12 @@ bool WW8PLCFx_Fc_FKP::NewFkp()
 
             if (maFkpCache.size() > eMaxCache)
             {
-                delete maFkpCache.front();
-                maFkpCache.pop_front();
+                WW8Fkp* pCachedFkp = maFkpCache.front();
+                if (!pCachedFkp->IsMustRemainCache())
+                {
+                    delete pCachedFkp;
+                    maFkpCache.pop_front();
+                }
             }
         }
     }
@@ -3415,6 +3419,7 @@ void WW8PLCFx_Cp_FKP::GetSprms(WW8PLCFxDesc* p)
                 if (bFail)
                 {
                     SAL_WARN("sw.ww8", "broken offset, ignoring");
+                    p->nStartPos = p->nEndPos = WW8_FC_MAX;
                     pPieceIter->SetIdx(nOldPos);
                     return;
                 }
@@ -3425,6 +3430,7 @@ void WW8PLCFx_Cp_FKP::GetSprms(WW8PLCFxDesc* p)
                     if (bFail)
                     {
                         SAL_WARN("sw.ww8", "broken offset, ignoring");
+                        p->nStartPos = p->nEndPos = WW8_FC_MAX;
                         pPieceIter->SetIdx(nOldPos);
                         return;
                     }
@@ -3434,6 +3440,7 @@ void WW8PLCFx_Cp_FKP::GetSprms(WW8PLCFxDesc* p)
                 if (bFail)
                 {
                     SAL_WARN("sw.ww8", "broken offset, ignoring");
+                    p->nStartPos = p->nEndPos = WW8_FC_MAX;
                     pPieceIter->SetIdx(nOldPos);
                     return;
                 }
@@ -3444,6 +3451,7 @@ void WW8PLCFx_Cp_FKP::GetSprms(WW8PLCFxDesc* p)
                     if (bFail)
                     {
                         SAL_WARN("sw.ww8", "broken offset, ignoring");
+                        p->nStartPos = p->nEndPos = WW8_FC_MAX;
                         pPieceIter->SetIdx(nOldPos);
                         return;
                     }
@@ -3454,6 +3462,7 @@ void WW8PLCFx_Cp_FKP::GetSprms(WW8PLCFxDesc* p)
                     if (bFail)
                     {
                         SAL_WARN("sw.ww8", "broken offset, ignoring");
+                        p->nStartPos = p->nEndPos = WW8_FC_MAX;
                         pPieceIter->SetIdx(nOldPos);
                         return;
                     }
@@ -3506,6 +3515,7 @@ void WW8PLCFx_Cp_FKP::GetSprms(WW8PLCFxDesc* p)
                             if (bFail)
                             {
                                 SAL_WARN("sw.ww8", "broken offset, ignoring");
+                                p->nStartPos = p->nEndPos = WW8_FC_MAX;
                                 continue;
                             }
 
@@ -3515,6 +3525,7 @@ void WW8PLCFx_Cp_FKP::GetSprms(WW8PLCFxDesc* p)
                                 if (bFail)
                                 {
                                     SAL_WARN("sw.ww8", "broken offset, ignoring");
+                                    p->nStartPos = p->nEndPos = WW8_FC_MAX;
                                     continue;
                                 }
                             }
@@ -3523,6 +3534,7 @@ void WW8PLCFx_Cp_FKP::GetSprms(WW8PLCFxDesc* p)
                             if (bFail)
                             {
                                 SAL_WARN("sw.ww8", "broken offset, ignoring");
+                                p->nStartPos = p->nEndPos = WW8_FC_MAX;
                                 continue;
                             }
 
@@ -3541,6 +3553,7 @@ void WW8PLCFx_Cp_FKP::GetSprms(WW8PLCFxDesc* p)
                                 if (bFail)
                                 {
                                     SAL_WARN("sw.ww8", "broken offset, ignoring");
+                                    p->nStartPos = p->nEndPos = WW8_FC_MAX;
                                     continue;
                                 }
                                 if (bIsUnicode)
@@ -3551,6 +3564,7 @@ void WW8PLCFx_Cp_FKP::GetSprms(WW8PLCFxDesc* p)
                                 if (bFail)
                                 {
                                     SAL_WARN("sw.ww8", "broken offset, ignoring");
+                                    p->nStartPos = p->nEndPos = WW8_FC_MAX;
                                     continue;
                                 }
 
@@ -5520,6 +5534,8 @@ void WW8PLCFx_Cp_FKP::SetIdx2(sal_uInt32 nIdx)
 
 void WW8PLCFx_Cp_FKP::Save( WW8PLCFxSave1& rSave ) const
 {
+    if (pFkp)
+        pFkp->IncMustRemainCache();
     WW8PLCFx::Save( rSave );
 
     rSave.nAttrStart = nAttrStart;
@@ -5534,6 +5550,9 @@ void WW8PLCFx_Cp_FKP::Restore( const WW8PLCFxSave1& rSave )
     nAttrStart = rSave.nAttrStart;
     nAttrEnd   = rSave.nAttrEnd;
     bLineEnd   = rSave.bLineEnd;
+
+    if (pFkp)
+        pFkp->DecMustRemainCache();
 }
 
 void WW8PLCFxDesc::Save( WW8PLCFxSave1& rSave ) const
@@ -7471,7 +7490,7 @@ WW8Dop::WW8Dop(SvStream& rSt, sal_Int16 nFib, sal_Int32 nPos, sal_uInt32 nSize)
     std::unique_ptr<sal_uInt8[]> pDataPtr( new sal_uInt8[ nMaxDopSize ] );
     sal_uInt8* pData = pDataPtr.get();
 
-    sal_uInt32 nRead = nMaxDopSize < nSize ? nMaxDopSize : nSize;
+    sal_uInt32 nRead = std::min(nMaxDopSize, nSize);
     if (nSize < 2 || !checkSeek(rSt, nPos) || nRead != rSt.ReadBytes(pData, nRead))
         nDopError = ERR_SWG_READ_ERROR;     // report error
     else

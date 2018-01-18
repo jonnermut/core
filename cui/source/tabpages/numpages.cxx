@@ -114,7 +114,7 @@ static SvxNumSettings_Impl* lcl_CreateNumSettingsPtr(const Sequence<PropertyValu
         {
             sal_Int16 nTmp;
             if (pValues[j].Value >>= nTmp)
-                pNew->nNumberType = (SvxNumType)nTmp;
+                pNew->nNumberType = static_cast<SvxNumType>(nTmp);
         }
         else if ( pValues[j].Name == "Prefix" )
             pValues[j].Value >>= pNew->sPrefix;
@@ -200,7 +200,7 @@ SvxSingleNumPickTabPage::SvxSingleNumPickTabPage(vcl::Window* pParent,
                 xDefNum->getDefaultContinuousNumberingLevels( rLocale );
 
 
-            sal_Int32 nLength = aNumberings.getLength() > NUM_VALUSET_COUNT ? NUM_VALUSET_COUNT :aNumberings.getLength();
+            sal_Int32 nLength = std::min<sal_Int32>(aNumberings.getLength(), NUM_VALUSET_COUNT);
 
             const Sequence<PropertyValue>* pValuesArr = aNumberings.getConstArray();
             for(sal_Int32 i = 0; i < nLength; i++)
@@ -1744,7 +1744,7 @@ IMPL_LINK( SvxNumOptionsTabPage, NumberTypeSelectHdl_Impl, ListBox&, rBox, void 
         {
             SvxNumberFormat aNumFmt(pActNum->GetLevel(i));
             // PAGEDESC does not exist
-            SvxNumType nNumType = (SvxNumType)reinterpret_cast<sal_uLong>(rBox.GetSelectedEntryData());
+            SvxNumType nNumType = static_cast<SvxNumType>(reinterpret_cast<sal_uLong>(rBox.GetSelectedEntryData()));
             aNumFmt.SetNumberingType(nNumType);
             sal_uInt16 nNumberingType = aNumFmt.GetNumberingType();
             if(SVX_NUM_BITMAP == (nNumberingType&(~LINK_TOKEN)))

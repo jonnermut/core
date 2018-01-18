@@ -32,6 +32,7 @@
 #include "bspatch.h"
 #include "errors.h"
 
+#include <algorithm>
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -104,7 +105,7 @@ MBS_ApplyPatch(const MBSPatchHeader *header, FILE* patchFile,
     unsigned char *wb = buf;
     while (r)
     {
-        const size_t count = (r > SSIZE_MAX) ? SSIZE_MAX : r;
+        const size_t count = std::min(r, size_t(SSIZE_MAX));
         size_t c = fread(wb, 1, count, patchFile);
         if (c != count)
         {

@@ -936,6 +936,13 @@ OUString SAL_CALL SfxBaseModel::getURL()
 Sequence< beans::PropertyValue > SAL_CALL SfxBaseModel::getArgs()
 {
     SfxModelGuard aGuard( *this );
+
+    if (!SfxApplication::Get()) // tdf#113755
+    {
+        SAL_WARN("sfx.appl", "Unexpected operations on model");
+        return m_pData->m_seqArguments;
+    }
+
     if ( m_pData->m_pObjectShell.is() )
     {
         Sequence< beans::PropertyValue > seqArgsNew;
@@ -1476,7 +1483,8 @@ void SAL_CALL SfxBaseModel::storeSelf( const    Sequence< beans::PropertyValue >
               && aSeqArgs[nInd].Name != "InteractionHandler" && aSeqArgs[nInd].Name != "StatusIndicator"
               && aSeqArgs[nInd].Name != "VersionMajor"
               && aSeqArgs[nInd].Name != "FailOnWarning"
-              && aSeqArgs[nInd].Name != "CheckIn" )
+              && aSeqArgs[nInd].Name != "CheckIn"
+              && aSeqArgs[nInd].Name != "NoFileSync" )
             {
                 const OUString aMessage( "Unexpected MediaDescriptor parameter: " + aSeqArgs[nInd].Name );
                 throw lang::IllegalArgumentException( aMessage, Reference< XInterface >(), 1 );

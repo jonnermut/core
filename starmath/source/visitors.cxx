@@ -674,7 +674,7 @@ void SmSetSelectionVisitor::Visit( SmTextNode* pNode ) {
     long start, end;
     pNode->SetSelected(true);
     if( i1 != -1 && i2 != -1 ) {
-        start = i1 < i2 ? i1 : i2; //MIN
+        start = std::min(i1, i2);
         end   = std::max(i1, i2);
     } else if( mbSelecting && i1 != -1 ) {
         start = 0;
@@ -1269,7 +1269,7 @@ void SmCaretPosGraphBuildingVisitor::Visit( SmBinDiagonalNode* pNode )
     mpRightMost = right;
 }
 
-//Straigt forward ( I think )
+//Straight forward ( I think )
 void SmCaretPosGraphBuildingVisitor::Visit( SmBinHorNode* pNode )
 {
     for( auto pChild : *pNode )

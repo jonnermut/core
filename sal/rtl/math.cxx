@@ -30,6 +30,7 @@
 #include <rtl/ustring.h>
 #include <sal/mathconf.h>
 #include <sal/types.h>
+#include <android/compatibility.hxx>
 
 #include <algorithm>
 #include <cassert>
@@ -443,7 +444,7 @@ inline void doubleToString(typename T::String ** pResult,
     // Round the number
     if(nDigits >= 0)
     {
-        if ((fValue += nRoundVal[nDigits > 15 ? 15 : nDigits] ) >= 10)
+        if ((fValue += nRoundVal[std::min<sal_Int32>(nDigits, 15)] ) >= 10)
         {
             fValue = 1.0;
             nExp++;
@@ -1075,6 +1076,9 @@ double SAL_CALL rtl_math_round(double fValue, int nDecPlaces,
 
     if (fValue == 0.0)
         return fValue;
+
+    if ( nDecPlaces == 0 && eMode == rtl_math_RoundingMode_Corrected )
+        return std::round( fValue );
 
     // sign adjustment
     bool bSign = rtl::math::isSignBitSet( fValue );

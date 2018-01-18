@@ -53,9 +53,9 @@ typedef ::std::map< OUString, OUString> StringPairMap_t;
 
 
 StyleSheetEntry::StyleSheetEntry() :
-        sStyleIdentifierI()
-        ,sStyleIdentifierD()
+        sStyleIdentifierD()
         ,bIsDefaultStyle(false)
+        ,bIsChapterNumbering(false)
         ,bInvalidHeight(false)
         ,bHasUPE(false)
         ,nStyleTypeCode(STYLE_TYPE_UNKNOWN)
@@ -73,16 +73,14 @@ StyleSheetEntry::~StyleSheetEntry()
 TableStyleSheetEntry::TableStyleSheetEntry( StyleSheetEntry const & rEntry ):
     StyleSheetEntry( )
 {
-
     bIsDefaultStyle = rEntry.bIsDefaultStyle;
+    bIsChapterNumbering = rEntry.bIsChapterNumbering;
     bInvalidHeight = rEntry.bInvalidHeight;
     bHasUPE = rEntry.bHasUPE;
     nStyleTypeCode = STYLE_TYPE_TABLE;
     sBaseStyleIdentifier = rEntry.sBaseStyleIdentifier;
     sNextStyleIdentifier = rEntry.sNextStyleIdentifier;
     sStyleName = rEntry.sStyleName;
-    sStyleName1 = rEntry.sStyleName1;
-    sStyleIdentifierI = rEntry.sStyleIdentifierI;
     sStyleIdentifierD = rEntry.sStyleIdentifierD;
 }
 
@@ -151,7 +149,7 @@ beans::PropertyValues StyleSheetEntry::GetInteropGrabBagSeq()
 beans::PropertyValue StyleSheetEntry::GetInteropGrabBag()
 {
     beans::PropertyValue aRet;
-    aRet.Name = sStyleIdentifierI;
+    aRet.Name = sStyleIdentifierD;
 
     beans::PropertyValues aSeq = GetInteropGrabBagSeq();
     aRet.Value <<= aSeq;
@@ -476,7 +474,6 @@ void StyleSheetTable::lcl_attribute(Id Name, Value & val)
             }
         break;
         case NS_ooxml::LN_CT_Style_styleId:
-            m_pImpl->m_pCurrentEntry->sStyleIdentifierI = sValue;
             m_pImpl->m_pCurrentEntry->sStyleIdentifierD = sValue;
             if(m_pImpl->m_pCurrentEntry->nStyleTypeCode == STYLE_TYPE_TABLE)
             {
@@ -532,7 +529,6 @@ void StyleSheetTable::lcl_sprm(Sprm & rSprm)
         case NS_ooxml::LN_CT_Style_name:
             //this is only a UI name!
             m_pImpl->m_pCurrentEntry->sStyleName = sStringValue;
-            m_pImpl->m_pCurrentEntry->sStyleName1 = sStringValue;
             if(m_pImpl->m_pCurrentEntry->nStyleTypeCode == STYLE_TYPE_TABLE)
             {
                 TableStyleSheetEntry* pTableEntry = static_cast<TableStyleSheetEntry *>(m_pImpl->m_pCurrentEntry.get());

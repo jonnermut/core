@@ -30,7 +30,6 @@
 #include <com/sun/star/uno/Sequence.h>
 #include <osl/file.hxx>
 #include <rtl/cipher.h>
-#include <rtl/digest.h>
 #include <rtl/strbuf.hxx>
 #include <rtl/ustring.hxx>
 #include <tools/gen.hxx>
@@ -41,6 +40,7 @@
 #include <vcl/pdfwriter.hxx>
 #include <vcl/wall.hxx>
 #include <o3tl/typed_flags_set.hxx>
+#include <comphelper/hash.hxx>
 
 #include <sallayout.hxx>
 #include <outdata.hxx>
@@ -297,22 +297,15 @@ public:
         sal_Int32           m_nObject;
         sal_Int32           m_nExtGStateObject;
         double              m_fAlpha;
-        tools::Rectangle           m_aBoundRect;
-        SvMemoryStream*     m_pContentStream;
-        SvMemoryStream*     m_pSoftMaskStream;
+        tools::Rectangle    m_aBoundRect;
+        std::unique_ptr<SvMemoryStream>  m_pContentStream;
+        std::unique_ptr<SvMemoryStream>  m_pSoftMaskStream;
 
         TransparencyEmit()
                 : m_nObject( 0 ),
                   m_nExtGStateObject( -1 ),
-                  m_fAlpha( 0.0 ),
-                  m_pContentStream( nullptr ),
-                  m_pSoftMaskStream( nullptr )
+                  m_fAlpha( 0.0 )
         {}
-        ~TransparencyEmit()
-        {
-            delete m_pContentStream;
-            delete m_pSoftMaskStream;
-        }
     };
 
     // font subsets
@@ -769,7 +762,7 @@ private:
     std::vector< PDFAddStream >             m_aAdditionalStreams;
     std::set< PDFWriter::ErrorCode >        m_aErrors;
 
-    rtlDigest                               m_aDocDigest;
+    ::comphelper::Hash                      m_DocDigest;
 
 /*
 variables for PDF security
@@ -777,7 +770,6 @@ i12626
 */
 /* used to cipher the stream data and for password management */
     rtlCipher                               m_aCipher;
-    rtlDigest                               m_aDigest;
     /* pad string used for password in Standard security handler */
     static const sal_uInt8                  s_nPadString[ENCRYPTED_PWD_SIZE];
 

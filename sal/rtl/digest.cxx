@@ -623,7 +623,7 @@ static void endMD5(DigestContextMD5 *ctx)
 
     i += 1;
 
-    if (i >= (DIGEST_LBLOCK_MD5 - 2))
+    if (i > (DIGEST_LBLOCK_MD5 - 2))
     {
         for (; i < DIGEST_LBLOCK_MD5; i++)
         {
@@ -1047,6 +1047,8 @@ static void endSHA(DigestContextSHA *ctx)
 
     i += 1;
 
+    // tdf#114939 NB: this is WRONG and should be ">" not ">=" but is not
+    // fixed as this buggy SHA1 implementation is needed for compatibility
     if (i >= (DIGEST_LBLOCK_SHA - 2))
     {
         for (; i < DIGEST_LBLOCK_SHA; i++)

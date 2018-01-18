@@ -1205,8 +1205,7 @@ HTMLOnOffState HTMLEndPosLst::GetHTMLItemState( const SfxPoolItem& rItem )
         break;
 
     case RES_CHRATR_ESCAPEMENT:
-        switch( (SvxEscapement)
-                        static_cast<const SvxEscapementItem&>(rItem).GetEnumValue() )
+        switch( static_cast<SvxEscapement>(static_cast<const SvxEscapementItem&>(rItem).GetEnumValue()) )
         {
         case SvxEscapement::Superscript:
         case SvxEscapement::Subscript:
@@ -2316,7 +2315,7 @@ Writer& OutHTML_SwTextNode( Writer& rWrt, const SwContentNode& rNode )
                 else
                 {
                     sal_Int32 nTmpStt = nHtStt < nStrPos ? nStrPos : nHtStt;
-                    sal_Int32 nTmpEnd = nHtEnd < nEnd ? nHtEnd : nEnd;
+                    sal_Int32 nTmpEnd = std::min(nHtEnd, nEnd);
                     aEndPosLst.Insert( pHt->GetAttr(), nTmpStt + nOffset,
                                        nTmpEnd + nOffset,
                                        rHTMLWrt.m_CharFormatInfos );
@@ -2778,7 +2777,7 @@ static Writer& OutHTML_SvxEscapement( Writer& rWrt, const SfxPoolItem& rHt )
         return rWrt;
 
     const SvxEscapement eEscape =
-        (SvxEscapement)static_cast<const SvxEscapementItem&>(rHt).GetEnumValue();
+        static_cast<SvxEscapement>(static_cast<const SvxEscapementItem&>(rHt).GetEnumValue());
     const sal_Char *pStr = nullptr;
     switch( eEscape )
     {
@@ -2830,7 +2829,7 @@ static Writer& OutHTML_SwFlyCnt( Writer& rWrt, const SfxPoolItem& rHt )
     const SdrObject *pSdrObj = nullptr;
 
     SwHTMLFrameType eType =
-        (SwHTMLFrameType)rHTMLWrt.GuessFrameType( rFormat, pSdrObj );
+        static_cast<SwHTMLFrameType>(rHTMLWrt.GuessFrameType( rFormat, pSdrObj ));
     AllHtmlFlags nMode = aHTMLOutFrameAsCharTable[eType][rHTMLWrt.m_nExportMode];
     rHTMLWrt.OutFrameFormat( nMode, rFormat, pSdrObj );
     return rWrt;

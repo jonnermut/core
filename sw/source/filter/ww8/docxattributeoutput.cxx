@@ -307,7 +307,7 @@ void DocxAttributeOutput::StartParagraph( ww8::WW8TableNodeInfo::Pointer_t pText
     bool bOneliner = m_bStartedParaSdt && !m_rExport.SdrExporter().IsDMLAndVMLDrawingOpen() && lcl_isOnelinerSdt(m_aStartedParagraphSdtPrAlias);
     if (bEndParaSdt || (m_bStartedParaSdt && m_bHadSectPr) || bOneliner)
     {
-        // This is the common case: "close sdt before the current paragraph" was requrested by the next paragraph.
+        // This is the common case: "close sdt before the current paragraph" was requested by the next paragraph.
         EndSdtBlock();
         m_bStartedParaSdt = false;
         m_aStartedParagraphSdtPrAlias.clear();
@@ -1149,7 +1149,7 @@ void DocxAttributeOutput::EndRun(const SwTextNode* pNode, sal_Int32 nPos, bool /
 
     if (m_bEndCharSdt)
     {
-        // This is the common case: "close sdt before the current run" was requrested by the next run.
+        // This is the common case: "close sdt before the current run" was requested by the next run.
 
         // if another sdt starts in this run, then wait
         // as closing the sdt now, might cause nesting of sdts
@@ -2967,7 +2967,7 @@ static void impl_borderLine( FSHelperPtr const & pSerializer, sal_Int32 elementT
     // if they are equal, it means that they were style-defined and there is
     // no need to write them.
     if( rStyleProps != nullptr && pBorderLine && !pBorderLine->isEmpty() &&
-            pBorderLine->GetBorderLineStyle() == (SvxBorderLineStyle)rStyleProps->LineStyle &&
+            pBorderLine->GetBorderLineStyle() == static_cast<SvxBorderLineStyle>(rStyleProps->LineStyle) &&
             pBorderLine->GetColor() == rStyleProps->Color &&
             pBorderLine->GetWidth() == convertMm100ToTwip( rStyleProps->LineWidth ) )
         return;
@@ -4458,7 +4458,7 @@ void DocxAttributeOutput::DefaultStyle()
     SAL_INFO("sw.ww8", "TODO DocxAttributeOutput::DefaultStyle()");
 }
 
-/* Writes <a:srcRect> tag back to document.xml if a file conatins a cropped image.
+/* Writes <a:srcRect> tag back to document.xml if a file contains a cropped image.
 *  NOTE : Tested on images of type JPEG,EMF/WMF,BMP, PNG and GIF.
 */
 void DocxAttributeOutput::WriteSrcRect(const SdrObject* pSdrObj, const SwFrameFormat* pFrameFormat )
@@ -4689,7 +4689,7 @@ void DocxAttributeOutput::FlyFrameGraphic( const SwGrfNode* pGrfNode, const Size
 
     if ( pGrfNode && SfxItemState::SET == pGrfNode->GetSwAttrSet().GetItemState(RES_GRFATR_DRAWMODE, true, &pItem))
     {
-        nMode = (GraphicDrawMode)static_cast<const SfxEnumItemInterface*>(pItem)->GetEnumValue();
+        nMode = static_cast<GraphicDrawMode>(static_cast<const SfxEnumItemInterface*>(pItem)->GetEnumValue());
         if (nMode == GraphicDrawMode::Greys)
             m_pSerializer->singleElementNS (XML_a, XML_grayscl, FSEND);
         else if (nMode == GraphicDrawMode::Mono) //black/white has a 0,5 threshold in LibreOffice

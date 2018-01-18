@@ -80,7 +80,7 @@ namespace connectivity
     class OOO_DLLPUBLIC_DBTOOLS OSQLParseTreeIterator final
     {
     private:
-        css::sdbc::SQLException                             m_aErrors;          // conatins the error while iterating through the statement
+        css::sdbc::SQLException                             m_aErrors;          // contains the error while iterating through the statement
         const OSQLParseNode*                                m_pParseTree;       // current ParseTree
         const OSQLParser&                                   m_rParser;          // if set used for general error messages from the context
         OSQLStatementType                                   m_eStatementType;
@@ -280,7 +280,7 @@ namespace connectivity
         // helper to implement getColumnTableRange
         bool impl_getColumnTableRange(const OSQLParseNode* pNode, OUString &rTableRange) const;
 
-        /** traverses the list of table names, and filles _rTables
+        /** traverses the list of table names, and fills _rTables
         */
         bool traverseTableNames( OSQLTables& _rTables );
 

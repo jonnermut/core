@@ -309,7 +309,7 @@ void VCLXMenu::insertItem(
     ::osl::Guard< ::osl::Mutex > aGuard( GetMutex() );
 
     if ( mpMenu )
-        mpMenu->InsertItem(nItemId, aText, (MenuItemBits)nItemStyle, OString(), nPos);
+        mpMenu->InsertItem(nItemId, aText, static_cast<MenuItemBits>(nItemStyle), OString(), nPos);
 }
 
 void VCLXMenu::removeItem(
@@ -581,8 +581,8 @@ namespace
         {
             if ( bResize && ( nCurWidth > nIdeal || nCurHeight > nIdeal ) )
             {
-                sal_Int32 nIdealWidth  = nCurWidth  > nIdeal ? nIdeal : nCurWidth;
-                sal_Int32 nIdealHeight = nCurHeight > nIdeal ? nIdeal : nCurHeight;
+                sal_Int32 nIdealWidth  = std::min(nCurWidth, nIdeal);
+                sal_Int32 nIdealHeight = std::min(nCurHeight, nIdeal);
 
                 ::Size aNewSize( nIdealWidth, nIdealHeight );
 
@@ -657,7 +657,7 @@ css::awt::MenuItemType SAL_CALL VCLXMenu::getItemType(
         css::awt::MenuItemType_DONTKNOW;
     if ( mpMenu )
     {
-        aMenuItemType = ( (css::awt::MenuItemType) mpMenu->GetItemType( nItemPos ) );
+        aMenuItemType = static_cast<css::awt::MenuItemType>(mpMenu->GetItemType( nItemPos ));
     }
 
     return aMenuItemType;

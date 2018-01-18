@@ -79,7 +79,7 @@ VCLXGraphics::~VCLXGraphics()
         }
     }
 
-    delete mpClipRegion;
+    mpClipRegion.reset();
 
     SolarMutexGuard g;
     mpOutputDevice.reset();
@@ -220,18 +220,17 @@ void VCLXGraphics::setRasterOp( awt::RasterOperation eROP )
 {
     SolarMutexGuard aGuard;
 
-    meRasterOp = (RasterOp)eROP;
+    meRasterOp = static_cast<RasterOp>(eROP);
 }
 
 void VCLXGraphics::setClipRegion( const uno::Reference< awt::XRegion >& rxRegion )
 {
     SolarMutexGuard aGuard;
 
-    delete mpClipRegion;
     if ( rxRegion.is() )
-        mpClipRegion = new vcl::Region( VCLUnoHelper::GetRegion( rxRegion ) );
+        mpClipRegion.reset( new vcl::Region( VCLUnoHelper::GetRegion( rxRegion ) ) );
     else
-        mpClipRegion = nullptr;
+        mpClipRegion.reset();
 }
 
 void VCLXGraphics::intersectClipRegion( const uno::Reference< awt::XRegion >& rxRegion )
@@ -242,7 +241,7 @@ void VCLXGraphics::intersectClipRegion( const uno::Reference< awt::XRegion >& rx
     {
         vcl::Region aRegion( VCLUnoHelper::GetRegion( rxRegion ) );
         if ( !mpClipRegion )
-            mpClipRegion = new vcl::Region( aRegion );
+            mpClipRegion.reset( new vcl::Region( aRegion ) );
         else
             mpClipRegion->Intersect( aRegion );
     }
@@ -460,7 +459,7 @@ void VCLXGraphics::drawGradient( sal_Int32 x, sal_Int32 y, sal_Int32 width, sal_
     if( mpOutputDevice )
     {
         InitOutputDevice( InitOutDevFlags::COLORS );
-        Gradient aGradient((GradientStyle)rGradient.Style, rGradient.StartColor, rGradient.EndColor);
+        Gradient aGradient(static_cast<GradientStyle>(rGradient.Style), rGradient.StartColor, rGradient.EndColor);
         aGradient.SetAngle(rGradient.Angle);
         aGradient.SetBorder(rGradient.Border);
         aGradient.SetOfsX(rGradient.XOffset);

@@ -2166,8 +2166,8 @@ void DomainMapper::sprmWithProps( Sprm& rSprm, const PropertyMapPtr& rContext )
             sal_Int32 nListId = pEntry ? lcl_getListId(pEntry, pStyleTable) : -1;
             if( pStyleSheetProperties && nListId >= 0 )
             {
-                rContext->Insert( PROP_NUMBERING_STYLE_NAME, uno::makeAny(
-                            ListDef::GetStyleName( nListId ) ), false);
+                if ( !pEntry->bIsChapterNumbering )
+                    rContext->Insert( PROP_NUMBERING_STYLE_NAME, uno::makeAny( ListDef::GetStyleName( nListId ) ), false);
 
                 // We're inheriting properties from a numbering style. Make sure a possible right margin is inherited from the base style.
                 sal_Int32 nParaRightMargin = 0;
@@ -2705,7 +2705,7 @@ void DomainMapper::sprmWithProps( Sprm& rSprm, const PropertyMapPtr& rContext )
     break;
     case NS_ooxml::LN_CT_SdtPr_rPr:
     {
-        // Make sure properties from a pervious SDT are not merged with the current ones.
+        // Make sure properties from a previous SDT are not merged with the current ones.
         m_pImpl->m_pSdtHelper->getInteropGrabBagAndClear();
     }
     break;
@@ -2796,7 +2796,7 @@ void DomainMapper::sprmWithProps( Sprm& rSprm, const PropertyMapPtr& rContext )
         {
             rContext->Insert(PROP_RUBY_TEXT, uno::makeAny(aInfo.sRubyText));
             rContext->Insert(PROP_RUBY_STYLE, uno::makeAny(aInfo.sRubyStyle));
-            rContext->Insert(PROP_RUBY_ADJUST, uno::makeAny((sal_Int16)ConversionHelper::convertRubyAlign(aInfo.nRubyAlign)));
+            rContext->Insert(PROP_RUBY_ADJUST, uno::makeAny(static_cast<sal_Int16>(ConversionHelper::convertRubyAlign(aInfo.nRubyAlign))));
             m_pImpl->SetRubySprmId(0);
         }
     }

@@ -79,7 +79,7 @@ bool ScTabViewShell::GetFunction( OUString& rFuncStr, FormulaError nErrCode )
     {
         if ( !(nFuncs & (1 << nFunc)) )
             continue;
-        ScSubTotalFunc eFunc = (ScSubTotalFunc)nFunc;
+        ScSubTotalFunc eFunc = static_cast<ScSubTotalFunc>(nFunc);
 
         if (bIgnoreError && (eFunc == SUBTOTAL_FUNC_CNT || eFunc == SUBTOTAL_FUNC_CNT2))
             nErrCode = FormulaError::NONE;
@@ -478,8 +478,8 @@ void ScTabViewShell::ExecuteCellFormatDlg(SfxRequest& rReq, const OString &rName
 
     const ScPatternAttr*    pOldAttrs       = GetSelectionPattern();
 
-    std::unique_ptr<SfxItemSet> pOldSet(new SfxItemSet(pOldAttrs->GetItemSet()));
-    std::unique_ptr<SvxNumberInfoItem> pNumberInfoItem;
+    std::shared_ptr<SfxItemSet> pOldSet(new SfxItemSet(pOldAttrs->GetItemSet()));
+    std::shared_ptr<SvxNumberInfoItem> pNumberInfoItem;
 
     pOldSet->MergeRange(SID_ATTR_BORDER_STYLES, SID_ATTR_BORDER_DEFAULT_WIDTH);
 
@@ -536,28 +536,34 @@ void ScTabViewShell::ExecuteCellFormatDlg(SfxRequest& rReq, const OString &rName
     ScAbstractDialogFactory* pFact = ScAbstractDialogFactory::Create();
     OSL_ENSURE(pFact, "ScAbstractFactory create fail!");
 
-    ScopedVclPtr<SfxAbstractTabDialog> pDlg(pFact->CreateScAttrDlg(GetDialogParent(), pOldSet.get()));
+    VclPtr<SfxAbstractTabDialog> pDlg(pFact->CreateScAttrDlg(GetDialogParent(), pOldSet.get()));
 
     if (!rName.isEmpty())
         pDlg->SetCurPageId(rName);
-    short nResult = pDlg->Execute();
-    bInFormatDialog = false;
 
-    if ( nResult == RET_OK )
-    {
-        const SfxItemSet* pOutSet = pDlg->GetOutputItemSet();
+    std::shared_ptr<SfxRequest> pRequest(new SfxRequest(rReq));
+    rReq.Ignore(); // the 'old' request is not relevant any more
 
-        const SfxPoolItem* pItem=nullptr;
-        if(pOutSet->GetItemState(SID_ATTR_NUMBERFORMAT_INFO,true,&pItem)==SfxItemState::SET)
-        {
+    pDlg->StartExecuteAsync([=](sal_Int32 nResult){
+            bInFormatDialog = false;
 
-            UpdateNumberFormatter(static_cast<const SvxNumberInfoItem&>(*pItem));
-        }
+            if ( nResult == RET_OK )
+            {
+                const SfxItemSet* pOutSet = pDlg->GetOutputItemSet();
 
-        ApplyAttributes(pOutSet, pOldSet.get());
+                assert(pOutSet);
 
-        rReq.Done( *pOutSet );
-    }
+                const SfxPoolItem* pItem=nullptr;
+                if(pOutSet->GetItemState(SID_ATTR_NUMBERFORMAT_INFO,true,&pItem)==SfxItemState::SET)
+                {
+                    UpdateNumberFormatter(static_cast<const SvxNumberInfoItem&>(*pItem));
+                }
+
+                ApplyAttributes(pOutSet, pOldSet.get());
+
+                pRequest->Done(pOutSet);
+            }
+        }, pDlg);
 }
 
 bool ScTabViewShell::IsRefInputMode() const

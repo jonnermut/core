@@ -568,7 +568,7 @@ void lcl_setSurround(PropertySet& rPropSet, const ShapeTypeModel& rTypeModel, co
     else if ( aWrapType == "topAndBottom" )
         nSurround = css::text::WrapTextMode_NONE;
 
-    rPropSet.setProperty(PROP_Surround, (sal_Int32)nSurround);
+    rPropSet.setProperty(PROP_Surround, static_cast<sal_Int32>(nSurround));
 }
 
 void lcl_SetAnchorType(PropertySet& rPropSet, const ShapeTypeModel& rTypeModel, const GraphicHelper& rGraphicHelper)
@@ -739,7 +739,7 @@ Reference< XShape > SimpleShape::implConvertAndInsert( const Reference< XShapes 
     }
     else
     {
-        // FIXME Setting the relative width/heigh only for everything but text frames as
+        // FIXME Setting the relative width/height only for everything but text frames as
         // TextFrames already have relative width/height feature... but currently not working
         // in the way we need.
 
@@ -1410,26 +1410,28 @@ Reference< XShape > GroupShape::implConvertAndInsert( const Reference< XShapes >
     {
     }
 
+    uno::Reference<beans::XPropertySet> xPropertySet;
     if (!maTypeModel.maEditAs.isEmpty())
+        xPropertySet = uno::Reference<beans::XPropertySet>(xGroupShape, uno::UNO_QUERY);
+    if (xPropertySet.is())
     {
-        uno::Reference<beans::XPropertySet> xPropertySet(xGroupShape, uno::UNO_QUERY);
         uno::Sequence<beans::PropertyValue> aGrabBag;
         xPropertySet->getPropertyValue("InteropGrabBag") >>= aGrabBag;
         beans::PropertyValue aPair;
         aPair.Name = "mso-edit-as";
         aPair.Value <<= maTypeModel.maEditAs;
-       if (aGrabBag.hasElements())
-       {
+        if (aGrabBag.hasElements())
+        {
             sal_Int32 nLength = aGrabBag.getLength();
             aGrabBag.realloc(nLength + 1);
             aGrabBag[nLength] = aPair;
-       }
-       else
-       {
-           aGrabBag.realloc(1);
-           aGrabBag[0] = aPair;
-       }
-       xPropertySet->setPropertyValue("InteropGrabBag", uno::makeAny(aGrabBag));
+        }
+        else
+        {
+            aGrabBag.realloc(1);
+            aGrabBag[0] = aPair;
+        }
+        xPropertySet->setPropertyValue("InteropGrabBag", uno::makeAny(aGrabBag));
     }
     // Make sure group shapes are inline as well, unless there is an explicit different style.
     PropertySet aPropertySet(xGroupShape);

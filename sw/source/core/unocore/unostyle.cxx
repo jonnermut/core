@@ -1664,7 +1664,7 @@ void SwXStyle::SetPropertyValue<OWN_ATTR_FILLBMP_MODE>(const SfxItemPropertySimp
     {
         if(!rValue.has<sal_Int32>())
             throw lang::IllegalArgumentException();
-        eMode = ((drawing::BitmapMode)rValue.get<sal_Int32>());
+        eMode = static_cast<drawing::BitmapMode>(rValue.get<sal_Int32>());
     }
     SfxItemSet& rStyleSet = o_rStyleBase.GetItemSet();
     rStyleSet.Put(XFillBmpStretchItem(drawing::BitmapMode_STRETCH == eMode));
@@ -3661,7 +3661,7 @@ uno::Reference< style::XAutoStyle > SwXAutoStyleFamily::insertStyle(
                             throw lang::IllegalArgumentException();
                         }
 
-                        eMode = (drawing::BitmapMode)nMode;
+                        eMode = static_cast<drawing::BitmapMode>(nMode);
                     }
 
                     aSet.Put(XFillBmpStretchItem(drawing::BitmapMode_STRETCH == eMode));
@@ -4793,7 +4793,7 @@ OUString SAL_CALL SwXTextCellStyle::getParentStyle()
 void SAL_CALL SwXTextCellStyle::setParentStyle(const OUString& /*sParentStyle*/)
 {
     SolarMutexGuard aGuard;
-    // Changing parent to one which is unaware of it will lead to a something unexcpected. getName() rely on a parent.
+    // Changing parent to one which is unaware of it will lead to a something unexpected. getName() rely on a parent.
     SAL_INFO("sw.uno", "Changing SwXTextCellStyle parent");
 }
 

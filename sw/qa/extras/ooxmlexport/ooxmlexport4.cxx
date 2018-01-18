@@ -442,7 +442,7 @@ DECLARE_OOXMLEXPORT_TEST(testChartInFooter, "chart-in-footer.docx")
     uno::Reference<drawing::XDrawPageSupplier> xDrawPageSupplier(mxComponent, uno::UNO_QUERY);
     if (xDrawPageSupplier.is())
     {
-        // If xDrawPage->getCount()==1, then document conatins one shape.
+        // If xDrawPage->getCount()==1, then document contains one shape.
         uno::Reference<container::XIndexAccess> xDrawPage(xDrawPageSupplier->getDrawPage(), uno::UNO_QUERY);
         CPPUNIT_ASSERT_EQUAL(sal_Int32(1), xDrawPage->getCount()); // One shape in the doc
     }
@@ -601,7 +601,7 @@ DECLARE_OOXMLEXPORT_TEST(testFdo74792, "fdo74792.docx")
                          comphelper::getComponentContext(m_xSFactory), maTempFile.GetURL());
 
     //check that images are also saved
-    OUString const sImageFile( "word/media/OOXDiagramDataRels1_0.jpeg" ); //added anchor id to form a uniqe name
+    OUString const sImageFile( "word/media/OOXDiagramDataRels1_0.jpeg" ); //added anchor id to form a unique name
     uno::Reference<io::XInputStream> xInputStream(xNameAccess->getByName( sImageFile ), uno::UNO_QUERY);
     CPPUNIT_ASSERT( xInputStream.is() );
 }
@@ -628,12 +628,12 @@ DECLARE_OOXMLEXPORT_TEST(testFdo77718, "fdo77718.docx")
                          comphelper::getComponentContext(m_xSFactory), maTempFile.GetURL());
 
     //check that images are also saved
-    OUString const sImageFile1( "word/media/OOXDiagramDataRels1_0.jpeg" ); //added anchor id to form a uniqe name
+    OUString const sImageFile1( "word/media/OOXDiagramDataRels1_0.jpeg" ); //added anchor id to form a unique name
     uno::Reference<io::XInputStream> xInputStream1(xNameAccess->getByName( sImageFile1 ), uno::UNO_QUERY);
     CPPUNIT_ASSERT( xInputStream1.is() );
 
     //check that images are saved for other smart-arts as well.
-    OUString const sImageFile2( "word/media/OOXDiagramDataRels2_0.jpeg" ); //added anchor id to form a uniqe name
+    OUString const sImageFile2( "word/media/OOXDiagramDataRels2_0.jpeg" ); //added anchor id to form a unique name
     uno::Reference<io::XInputStream> xInputStream2(xNameAccess->getByName( sImageFile2 ), uno::UNO_QUERY);
     CPPUNIT_ASSERT( xInputStream2.is() );
 }

@@ -744,8 +744,8 @@ WindowImpl::WindowImpl( WindowType nType )
 
 WindowImpl::~WindowImpl()
 {
-    delete mpChildClipRegion;
-    delete mpAccessibleInfos;
+    mpChildClipRegion.reset();
+    mpAccessibleInfos.reset();
 }
 
 ImplWinData::ImplWinData() :
@@ -767,10 +767,10 @@ ImplWinData::ImplWinData() :
 
 ImplWinData::~ImplWinData()
 {
-    delete mpCursorRect;
-    delete[] mpCompositionCharRects;
-    delete mpFocusRect;
-    delete mpTrackRect;
+    mpCursorRect.reset();
+    mpCompositionCharRects.reset();
+    mpFocusRect.reset();
+    mpTrackRect.reset();
 }
 
 ImplFrameData::ImplFrameData( vcl::Window *pWindow )
@@ -2086,14 +2086,13 @@ void Window::SetCursorRect( const tools::Rectangle* pRect, long nExtTextInputWid
             *pWinData->mpCursorRect = *pRect;
         else
         {
-            delete pWinData->mpCursorRect;
-            pWinData->mpCursorRect = nullptr;
+            pWinData->mpCursorRect.reset();
         }
     }
     else
     {
         if ( pRect )
-            pWinData->mpCursorRect = new tools::Rectangle( *pRect );
+            pWinData->mpCursorRect.reset( new tools::Rectangle( *pRect ) );
     }
 
     pWinData->mnCursorExtWidth = nExtTextInputWidth;
@@ -2104,7 +2103,7 @@ const tools::Rectangle* Window::GetCursorRect() const
 {
 
     ImplWinData* pWinData = ImplGetWinData();
-    return pWinData->mpCursorRect;
+    return pWinData->mpCursorRect.get();
 }
 
 long Window::GetCursorExtTextInputWidth() const
@@ -2117,13 +2116,12 @@ long Window::GetCursorExtTextInputWidth() const
 void Window::SetCompositionCharRect( const tools::Rectangle* pRect, long nCompositionLength, bool bVertical ) {
 
     ImplWinData* pWinData = ImplGetWinData();
-    delete[] pWinData->mpCompositionCharRects;
+    pWinData->mpCompositionCharRects.reset();
     pWinData->mbVertical = bVertical;
-    pWinData->mpCompositionCharRects = nullptr;
     pWinData->mnCompositionCharRects = nCompositionLength;
     if ( pRect && (nCompositionLength > 0) )
     {
-        pWinData->mpCompositionCharRects = new tools::Rectangle[nCompositionLength];
+        pWinData->mpCompositionCharRects.reset( new tools::Rectangle[nCompositionLength] );
         for (long i = 0; i < nCompositionLength; ++i)
             pWinData->mpCompositionCharRects[i] = pRect[i];
     }
@@ -2479,6 +2477,8 @@ bool Window::IsCallHandlersOnInputDisabled() const
 
 void Window::EnableInput( bool bEnable, bool bChild )
 {
+    if (!mpWindowImpl)
+        return;
 
     bool bNotify = (bEnable != mpWindowImpl->mbInputDisabled);
     if ( mpWindowImpl->mpBorderWindow )
@@ -2542,6 +2542,9 @@ void Window::EnableInput( bool bEnable, bool bChild )
 
 void Window::EnableInput( bool bEnable, const vcl::Window* pExcludeWindow )
 {
+    if (!mpWindowImpl)
+        return;
+
     EnableInput( bEnable );
 
     // pExecuteWindow is the first Overlap-Frame --> if this
