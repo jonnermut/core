@@ -33,6 +33,7 @@
 		39B091CE1E5F0BB800682A59 /* unorc in Resources */ = {isa = PBXBuildFile; fileRef = 39B08B9C1E5F0BB600682A59 /* unorc */; };
 		39E950531FC9842000D82C49 /* source in Resources */ = {isa = PBXBuildFile; fileRef = 39E950521FC9842000D82C49 /* source */; };
 		39EF4E2F1FA500C9001914AC /* PropertiesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EF4E2E1FA500C9001914AC /* PropertiesController.swift */; };
+		FC148CE320187F7700C349CA /* libKit.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 396C833E1FC9D89D008E662A /* libKit.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		FC31D01E2012F65500E7F402 /* DocumentHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC31D01D2012F65500E7F402 /* DocumentHolder.swift */; };
 		FC31D0202012F6D300E7F402 /* RenderCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC31D01F2012F6D300E7F402 /* RenderCache.swift */; };
 		FC31D02B2013500E00E7F402 /* ButtonScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC31D02A2013500E00E7F402 /* ButtonScrollView.swift */; };
@@ -47,6 +48,20 @@
 		FCC2E4052004B74000CEB504 /* AsyncUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC2E4042004B74000CEB504 /* AsyncUtil.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		FC148CE420187F7800C349CA /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				FC148CE320187F7700C349CA /* libKit.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		39022C1A1EDC2A0E00100066 /* program */ = {isa = PBXFileReference; lastKnownFileType = folder; name = program; path = ../generated/resources/program; sourceTree = "<group>"; };
 		39022C1C1EDC2A2C00100066 /* services */ = {isa = PBXFileReference; lastKnownFileType = folder; name = services; path = ../generated/resources/services; sourceTree = "<group>"; };
@@ -58,7 +73,7 @@
 		393975791F8BECC1002DC80B /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		39503A6F1F94C4AC00F19C78 /* lokit-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "lokit-Bridging-Header.h"; sourceTree = "<group>"; };
 		39503A741F94D44900F19C78 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
-		396C833E1FC9D89D008E662A /* libKit.dylib */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libKit.dylib; path = ../generated/simulator/libKit.dylib; sourceTree = "<group>"; };
+		396C833E1FC9D89D008E662A /* libKit.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libKit.dylib; path = ../generated/simulator/libKit.dylib; sourceTree = "<group>"; };
 		396F92F61E7AE62400A28C82 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		397275391E77D9F1006ACDCC /* LibreOfficeLight.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LibreOfficeLight.entitlements; sourceTree = "<group>"; };
 		3975A8C91FBD70EE00A87B3A /* LibreOfficeKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LibreOfficeKit.h; path = ../../include/LibreOfficeKit/LibreOfficeKit.h; sourceTree = "<group>"; };
@@ -248,6 +263,7 @@
 				397E08F61E597BD8001374E0 /* Sources */,
 				397E08F71E597BD8001374E0 /* Frameworks */,
 				397E08F81E597BD8001374E0 /* Resources */,
+				FC148CE420187F7800C349CA /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -431,7 +447,7 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
 				LD_MAP_FILE_PATH = "";
-				LIBRARY_SEARCH_PATHS = $PROJECT_DIR/../generated/;
+				LIBRARY_SEARCH_PATHS = "$PROJECT_DIR/../generated/debug/**";
 				MACH_O_TYPE = mh_execute;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -493,11 +509,11 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
 				LD_MAP_FILE_PATH = "";
-				LIBRARY_SEARCH_PATHS = $PROJECT_DIR/../generated/;
+				LIBRARY_SEARCH_PATHS = "$PROJECT_DIR/../generated/release/**";
 				MACH_O_TYPE = mh_execute;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = libKit_ARM64.a;
+				OTHER_LDFLAGS = "";
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "lokit-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -627,7 +643,7 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
 				LD_MAP_FILE_PATH = "";
-				LIBRARY_SEARCH_PATHS = $PROJECT_DIR/../generated/;
+				LIBRARY_SEARCH_PATHS = "$PROJECT_DIR/../generated/simulator/**";
 				MACH_O_TYPE = mh_execute;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;

@@ -59,6 +59,7 @@ $(IOSKIT).dylib: $(IOSKIT).a
 	$(IOSCLANG) -dynamiclib -mios-simulator-version-min=$(IOS_DEPLOYMENT_VERSION) \
 	    -arch `echo $(CPUNAME) |  tr '[:upper:]' '[:lower:]'` \
 	    -isysroot $(MACOSX_SDK_PATH) \
+	    -install_name @rpath/libKit.dylib \
 	    -Xlinker -rpath -Xlinker @executable_path/Frameworks \
 	    -Xlinker -rpath -Xlinker @loader_path/Frameworks \
 	    -dead_strip \
