@@ -66,7 +66,9 @@ open class LibreOffice
     {
         let b = Bundle.init(for: LibreOffice.self)
         let path = b.bundlePath // not Bundle.main.bundlePath
-        BridgeLOkit_Init(path)
+        let docsDir = getDocumentsDirectory()
+        let userDir = docsDir.appendingPathComponent("user")
+        BridgeLOkit_Init(path, userDir.path)
         let pLok = BridgeLOkit_getLOK()
         if let lokClass = pLok?.pointee.pClass?.pointee
         {
