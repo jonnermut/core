@@ -16,7 +16,6 @@
 		393975781F8BECB0002DC80B /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 393975771F8BECB0002DC80B /* libiconv.tbd */; };
 		3939757A1F8BECC1002DC80B /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 393975791F8BECC1002DC80B /* libz.tbd */; };
 		39503A751F94D44900F19C78 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 39503A741F94D44900F19C78 /* libc++.tbd */; };
-		396C833F1FC9D89E008E662A /* libKit.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 396C833E1FC9D89D008E662A /* libKit.dylib */; };
 		396F92F71E7AE62400A28C82 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 396F92F61E7AE62400A28C82 /* Settings.bundle */; };
 		397868D61E59A3EA007F9248 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 397868D81E59A3EA007F9248 /* LaunchScreen.xib */; };
 		397E08FE1E597BD8001374E0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397E08FD1E597BD8001374E0 /* AppDelegate.swift */; };
@@ -33,7 +32,6 @@
 		39B091CE1E5F0BB800682A59 /* unorc in Resources */ = {isa = PBXBuildFile; fileRef = 39B08B9C1E5F0BB600682A59 /* unorc */; };
 		39E950531FC9842000D82C49 /* source in Resources */ = {isa = PBXBuildFile; fileRef = 39E950521FC9842000D82C49 /* source */; };
 		39EF4E2F1FA500C9001914AC /* PropertiesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EF4E2E1FA500C9001914AC /* PropertiesController.swift */; };
-		FC148CE320187F7700C349CA /* libKit.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 396C833E1FC9D89D008E662A /* libKit.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		FC31D01E2012F65500E7F402 /* DocumentHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC31D01D2012F65500E7F402 /* DocumentHolder.swift */; };
 		FC31D0202012F6D300E7F402 /* RenderCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC31D01F2012F6D300E7F402 /* RenderCache.swift */; };
 		FC31D02B2013500E00E7F402 /* ButtonScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC31D02A2013500E00E7F402 /* ButtonScrollView.swift */; };
@@ -46,6 +44,8 @@
 		FCC2E4012004B65E00CEB504 /* example.odt in Resources */ = {isa = PBXBuildFile; fileRef = FCC2E4002004B65E00CEB504 /* example.odt */; };
 		FCC2E4032004B72700CEB504 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC2E4022004B72700CEB504 /* Util.swift */; };
 		FCC2E4052004B74000CEB504 /* AsyncUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC2E4042004B74000CEB504 /* AsyncUtil.swift */; };
+		FCC7651D201C7F8A007D190C /* libKit.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FCC7651C201C7F8A007D190C /* libKit.dylib */; };
+		FCC7651E201C80A5007D190C /* libKit.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = FCC7651C201C7F8A007D190C /* libKit.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -55,7 +55,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				FC148CE320187F7700C349CA /* libKit.dylib in Embed Libraries */,
+				FCC7651E201C80A5007D190C /* libKit.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -73,7 +73,6 @@
 		393975791F8BECC1002DC80B /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		39503A6F1F94C4AC00F19C78 /* lokit-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "lokit-Bridging-Header.h"; sourceTree = "<group>"; };
 		39503A741F94D44900F19C78 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
-		396C833E1FC9D89D008E662A /* libKit.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libKit.dylib; path = ../generated/simulator/libKit.dylib; sourceTree = "<group>"; };
 		396F92F61E7AE62400A28C82 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		397275391E77D9F1006ACDCC /* LibreOfficeLight.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LibreOfficeLight.entitlements; sourceTree = "<group>"; };
 		3975A8C91FBD70EE00A87B3A /* LibreOfficeKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LibreOfficeKit.h; path = ../../include/LibreOfficeKit/LibreOfficeKit.h; sourceTree = "<group>"; };
@@ -114,6 +113,7 @@
 		FCC2E4002004B65E00CEB504 /* example.odt */ = {isa = PBXFileReference; lastKnownFileType = file; name = example.odt; path = "../../android/default-document/example.odt"; sourceTree = "<group>"; };
 		FCC2E4022004B72700CEB504 /* Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
 		FCC2E4042004B74000CEB504 /* AsyncUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncUtil.swift; sourceTree = "<group>"; };
+		FCC7651C201C7F8A007D190C /* libKit.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libKit.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,8 +121,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				396C833F1FC9D89E008E662A /* libKit.dylib in Frameworks */,
 				39503A751F94D44900F19C78 /* libc++.tbd in Frameworks */,
+				FCC7651D201C7F8A007D190C /* libKit.dylib in Frameworks */,
 				3939757A1F8BECC1002DC80B /* libz.tbd in Frameworks */,
 				393975781F8BECB0002DC80B /* libiconv.tbd in Frameworks */,
 			);
@@ -156,7 +156,7 @@
 		3972753A1E77D9F7006ACDCC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				396C833E1FC9D89D008E662A /* libKit.dylib */,
+				FCC7651C201C7F8A007D190C /* libKit.dylib */,
 				39503A741F94D44900F19C78 /* libc++.tbd */,
 				393975791F8BECC1002DC80B /* libz.tbd */,
 				393975771F8BECB0002DC80B /* libiconv.tbd */,
@@ -260,6 +260,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 397E09251E597BD8001374E0 /* Build configuration list for PBXNativeTarget "LibreOfficeLight" */;
 			buildPhases = (
+				FC148D13201C7A6600C349CA /* ShellScript */,
 				397E08F61E597BD8001374E0 /* Sources */,
 				397E08F71E597BD8001374E0 /* Frameworks */,
 				397E08F81E597BD8001374E0 /* Resources */,
@@ -346,6 +347,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		FC148D13201C7A6600C349CA /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "echo hello\n\nGEN=$PROJECT_DIR/../generated\nif [ arch = \"x86_64\" ]; then\nLIB=$GEN/simulator/libKit.dylib\nelse\nLIB=$GEN/release/libKit.dylib\nfi\necho $LIB\nln -sf $LIB $TARGET_BUILD_DIR/libKit.dylib\n\n\n\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		397E08F61E597BD8001374E0 /* Sources */ = {
